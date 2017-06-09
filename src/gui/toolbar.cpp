@@ -22,7 +22,7 @@ Toolbar::Toolbar(MainWindow* parent)
     act_dpoint = NULL;
 
     icosize = "32x32";
-    icopath = "/home/morrigan/Documents/workspaces/daiman/analysis/Icons/";
+    icopath = "/home/morrigan/CLionProjects/DAIMAn/images/";
     menu_created = createActions();
     createMenus();
 }
