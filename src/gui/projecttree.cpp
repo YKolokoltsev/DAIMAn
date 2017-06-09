@@ -4,36 +4,16 @@
 #include <QFileDialog>
 #include <QApplication>
 #include <QDesktopWidget>
-#include <QStringList>
 #include <QSplitter>
-#include <wavefunction/wfxparser.h>
 
 #include "projecttree.h"
-#include "document.h"
 #include "functions.h"
 
-ProjectTree::ProjectTree(MainWindow* parent)
-{
-    papa = parent;
-    c_setup = NULL;
-    generalinfo = NULL;
-    this->setHeaderLabel(QString("Project Tree"));
-}
-
-ProjectTree::~ProjectTree()
-{
-    if(c_setup)
-        delete c_setup;
-    if(generalinfo)
-        delete generalinfo;
-}
+using namespace std;
 
 void ProjectTree::selectionChanged (const QItemSelection & selected, const QItemSelection & deselected)
 {
-    if(!papa) return;
     if(!currentItem()) return;
-
-    int i = 0;
 
     if(currentItem()->text(1) == QString("surface") || currentItem()->text(1) == QString("bond_network"))
     {
@@ -41,7 +21,7 @@ void ProjectTree::selectionChanged (const QItemSelection & selected, const QItem
         QList <Surface> surf = papa->doc->get_surfaces();
         Surface ss(QString("tmp"));
 
-        for(i = 0; i < surf.count(); i++)
+        for(int i = 0; i < surf.count(); i++)
         {
             ss = surf.at(i);
 
@@ -59,7 +39,7 @@ void ProjectTree::selectionChanged (const QItemSelection & selected, const QItem
         QList<BondNetwork> * pBN = papa->doc->get_bondNetworks();
         BondNetwork bn("tmp");
 
-        for(i = 0; i < pBN->count(); i++){
+        for(int i = 0; i < pBN->count(); i++){
             bn = pBN->at(i);
             if(bn.name == currentItem()->text(0)){
                 bn.is_active = true;
@@ -72,7 +52,7 @@ void ProjectTree::selectionChanged (const QItemSelection & selected, const QItem
     }
 
     if(currentItem()->text(1) == QString("info"))
-        papa->setActiveWidget(generalinfo);
+        papa->setActiveWidget(generalinfo.get());
     else papa->setActiveWidget(papa->glWidget);
 
     papa->glWidget->updateGL();
@@ -82,8 +62,7 @@ void ProjectTree::selectionChanged (const QItemSelection & selected, const QItem
 
 void ProjectTree::sl_SetupCamera()
 {
-    if(c_setup) delete c_setup;
-    c_setup = new CameraSetup(papa);
+    if(c_setup) c_setup.reset(new CameraSetup(papa.get()));
     c_setup->show();
 }
 
@@ -122,8 +101,7 @@ void ProjectTree::sl_GeneralInfo()
     QTreeWidgetItem * root = this->currentItem();
     if(!root) return;
 
-    if(generalinfo) delete generalinfo;
-    generalinfo = new GeneralInfo(papa);
+    if(generalinfo) generalinfo.reset(new GeneralInfo(papa.get()));
     generalinfo->LoadInfo();
 
     for(int i = 0; i < root->childCount(); i++)
@@ -157,6 +135,7 @@ QMenu* ProjectTree::CreateMoleculeMenu()
 {
     QMenu* pMenu = new QMenu(this);
     if(!pMenu) return NULL;
+
 
     QAction* p_CalcMainInfo = new QAction("Basic Info", this);
     connect(p_CalcMainInfo, SIGNAL(triggered()), this, SLOT(sl_GeneralInfo()));

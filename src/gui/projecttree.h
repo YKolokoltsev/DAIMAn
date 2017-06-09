@@ -1,6 +1,8 @@
 #ifndef PROJECTTREE_H
 #define PROJECTTREE_H
 
+#include <memory>
+
 #include <QTreeWidget>
 #include <QMenu>
 #include <QContextMenuEvent>
@@ -13,13 +15,18 @@ class MainWindow;
 class CameraSetup;
 class GeneralInfo;
 
+using namespace std;
+
 class ProjectTree : public QTreeWidget
 {
       Q_OBJECT
 
 public:
-    ProjectTree(MainWindow* parent);
-    ~ProjectTree();
+    ProjectTree(MainWindow* papa) : papa{papa}{
+        setHeaderLabel(QString("Project Tree"));
+    }
+
+    ~ProjectTree(){};
 
 protected:
    void selectionChanged (const QItemSelection & selected, const QItemSelection & deselected);
@@ -35,9 +42,9 @@ private:
    QMenu* CreateMoleculeMenu();
 
 private:
-   MainWindow* papa;
-   CameraSetup* c_setup;
-   GeneralInfo* generalinfo;
+   const shared_ptr<MainWindow> papa;
+   shared_ptr<CameraSetup> c_setup;
+   shared_ptr<GeneralInfo> generalinfo;
 };
 
 #endif // PROJECTTREE_H
