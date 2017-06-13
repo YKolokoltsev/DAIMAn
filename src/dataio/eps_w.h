@@ -9,6 +9,13 @@
 
 #include "cgal_routines.h"
 
+/*
+ * write vector image into the *.eps file
+ * input is the 3D vectors and lines, and an output is a plain 2D projection
+ * this method does not support Z-order, so all will be visible
+ */
+
+
 typedef struct EpsPoints{
     QList<QVector3D> points;
     QList<QVector2D> prj;

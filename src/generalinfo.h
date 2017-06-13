@@ -7,11 +7,10 @@
 
 class GeneralInfo : public QTextBrowser
 {
-
     Q_OBJECT
 
 public:
-    GeneralInfo(MainWindow* parent);
+    GeneralInfo(MainWindow* papa) : papa{papa} {};
 
     void CalculateInfo();
     void LoadInfo();
@@ -20,5 +19,6 @@ public:
 private:
     MainWindow* papa;
 };
+
 
 #endif // GENERALINFO_H

@@ -204,7 +204,7 @@ public:
 
     QList<QVector3D>   get_atoms(){return atoms;}
     QList<QVector3D>   get_helpers(){return helpers;}
-    QList<Surface>     get_surfaces(){return surfaces;}
+    QList<Surface>*     get_surfaces(){return &surfaces;}
     QString get_wfn_file_path(){return wfn_file_path;}
     QList<BondNetwork>* get_bondNetworks(){return &bondNetworks;}
     QList<ZfxSurfGrad*>* get_zfxsurfgrads(){return &zfxSurfGrads;}

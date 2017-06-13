@@ -1,5 +1,5 @@
 #include "toolbar.h"
-#include "eps_writer.h"
+#include "dataio/eps_w.h"
 #include <QIcon>
 #include <QMessageBox>
 #include <QVector3D>

@@ -1,4 +1,4 @@
-#include "eps_writer.h"
+#include "eps_w.h"
 #include <fstream>
 
 EpsWriter::EpsWriter(){

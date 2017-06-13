@@ -1,3 +1,4 @@
+#include <iostream>
 #include <QItemSelection>
 #include <QMessageBox>
 #include <QScreen>
@@ -18,51 +19,30 @@ void ProjectTree::selectionChanged (const QItemSelection & selected, const QItem
     if(currentItem()->text(1) == QString("surface") || currentItem()->text(1) == QString("bond_network"))
     {
         //surfaces
-        QList <Surface> surf = papa->doc->get_surfaces();
-        Surface ss(QString("tmp"));
-
-        for(int i = 0; i < surf.count(); i++)
-        {
-            ss = surf.at(i);
-
-            if(ss.name == currentItem()->text(0))
-                ss.is_active = true;
-            else
-                ss.is_active = false;
-
-            surf.removeAt(i);
-            surf.insert(i,ss);
-        }
-        papa->doc->set_Surfaces(surf);
+        for(auto & surf : *papa->doc->get_surfaces())
+            surf.is_active = currentItem()->text(0) == surf.name;
 
         //bond networks
-        QList<BondNetwork> * pBN = papa->doc->get_bondNetworks();
-        BondNetwork bn("tmp");
-
-        for(int i = 0; i < pBN->count(); i++){
-            bn = pBN->at(i);
-            if(bn.name == currentItem()->text(0)){
-                bn.is_active = true;
-            }else{
-                bn.is_active = false;
-            }
-            pBN->removeAt(i);
-            pBN->insert(i,bn);
-        }
+        for(auto & network : *papa->doc->get_bondNetworks())
+            network.is_active = currentItem()->text(0) == network.name;
     }
 
-    if(currentItem()->text(1) == QString("info"))
+    if(currentItem()->text(1) == QString("info")){
         papa->setActiveWidget(generalinfo.get());
-    else papa->setActiveWidget(papa->glWidget);
+        cout << "orbitals table size: " << generalinfo->OrbitalsTable().size() << endl;
+    } else {
+        papa->setActiveWidget(papa->glWidget);
+    }
 
     papa->glWidget->updateGL();
+
 }
 
 //********************** SLOTS
 
 void ProjectTree::sl_SetupCamera()
 {
-    if(c_setup) c_setup.reset(new CameraSetup(papa.get()));
+    c_setup.reset(new CameraSetup(papa.get()));
     c_setup->show();
 }
 
@@ -101,14 +81,13 @@ void ProjectTree::sl_GeneralInfo()
     QTreeWidgetItem * root = this->currentItem();
     if(!root) return;
 
-    if(generalinfo) generalinfo.reset(new GeneralInfo(papa.get()));
+    generalinfo.reset(new GeneralInfo(papa.get()));
     generalinfo->LoadInfo();
 
     for(int i = 0; i < root->childCount(); i++)
         if(root->child(i)->text(1) == QString("info")) return;
 
     QTreeWidgetItem * p_Item = new QTreeWidgetItem(root);
-    if(!p_Item) return;
     p_Item->setText(0,QString("Information"));
     p_Item->setText(1,QString("info"));
 }

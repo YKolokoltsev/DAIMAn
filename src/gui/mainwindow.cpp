@@ -4,6 +4,7 @@
 #include <QMessageBox>
 #include <QInputDialog>
 #include <QLineEdit>
+#include <QList>
 
 #include "mainwindow.h"
 #include "wavefunction/wfndata.h"
@@ -85,9 +86,13 @@ void MainWindow::createActions()
      addPlaneAct->setStatusTip(tr("Creates an intersection plane"));
      connect(addPlaneAct, SIGNAL(triggered()), this, SLOT(addPlane()));
 
-     calcBondPathsAct = new QAction(tr("Calc &Bond Paths"), this);
+     calcBondPathsAct = new QAction(tr("AbInitio &Bond Paths"), this);
      calcBondPathsAct->setStatusTip(tr("Calculates bond paths between atoms"));
      connect(calcBondPathsAct, SIGNAL(triggered()), this, SLOT(addBondPaths()));
+
+     addNNAsAct = new QAction(tr("Search &NNAs"), this);
+     addNNAsAct->setStatusTip(tr("Gradient search for NNAs in a box"));
+     connect(addNNAsAct, SIGNAL(triggered()), this, SLOT(addNNAs()));
 
      delObjectAct = new QAction(tr("&Delete Object"), this);
      delObjectAct->setStatusTip(tr("Removes a selected object"));
@@ -111,6 +116,7 @@ void MainWindow::createMenus()
      objectsMenu->addAction(addSurfaceAct);
      objectsMenu->addAction(addPlaneAct);
      objectsMenu->addAction(calcBondPathsAct);
+     objectsMenu->addAction(addNNAsAct);
      objectsMenu->addAction(delObjectAct);
 }
 
@@ -374,13 +380,11 @@ void MainWindow::openRecentFile()
 void MainWindow::addSurface()
 {
     bool ok = false;
-    QMessageBox msgBox(this);
 
     QTreeWidgetItem *root = treeWidget->topLevelItem(0);
     if(!root)
     {
-        msgBox.setText("Open data file first");
-        msgBox.exec();
+        msgBox("Open data file first");
         return;
     }
 
@@ -389,14 +393,11 @@ void MainWindow::addSurface()
                           QString("New Surface Name"),
                           NULL,
                           QLineEdit::Normal,
-                          QString("Surface_")+QString().setNum(doc->get_surfaces().count() + 1),
+                          QString("Surface_")+QString().setNum(doc->get_surfaces()->count() + 1),
                           &ok);
     if(ok)
     {
-        Surface surf(name);
-        QList<Surface> newss = doc->get_surfaces();
-        newss.append(surf);
-        doc->set_Surfaces(newss);
+        doc->get_surfaces()->append(Surface(name));
 
         QTreeWidgetItem * item = new QTreeWidgetItem(root);
         item->setText(0,name);
@@ -406,24 +407,25 @@ void MainWindow::addSurface()
 
 void MainWindow::addPlane()
 {
-    QMessageBox msgBox(this);
-    msgBox.setText("This function is not yet implemented");
-    msgBox.exec();
+    msgBox("This function is not yet implemented");
 }
 
 void MainWindow::delObject()
 {   
     QList<QTreeWidgetItem*> selected = treeWidget->selectedItems();
-    if(selected.count() == 0) return;
+    if(selected.count() == 0){
+        msgBox("Nothing to delete");
+        return;
+    }
 
     if(selected.at(0)->text(1) == QString("surface"))
     {
-        QList<Surface> surf = doc->get_surfaces();
-        for(int i = 0; i < surf.count(); i++)
-           if(surf.at(i).is_active)
-               surf.removeAt(i);
 
-        doc->set_Surfaces(surf);
+        QList<Surface> * surfaces = doc->get_surfaces();
+        for(int i = 0; i < surfaces->count(); i++)
+           if(surfaces->at(i).is_active)
+               surfaces->removeAt(i);
+
         selected.at(0)->parent()->removeChild(selected.at(0));
     }
 }
@@ -477,15 +479,16 @@ void MainWindow::setActiveWidget(QWidget* main)
     mainWidget->setSizes(sz);
 }
 
-void MainWindow::addBondPaths()
-{
-    QMessageBox msgBox(this);
+void MainWindow::addNNAs(){
+    //todo: implement it
+    cout << "add NNAs action" << endl;
+}
+
+void MainWindow::addBondPaths() {
 
     QTreeWidgetItem *root = treeWidget->topLevelItem(0);
-    if(!root)
-    {
-        msgBox.setText("Open data file first");
-        msgBox.exec();
+    if(!root) {
+        msgBox("Open data file first");
         return;
     }
 
@@ -504,8 +507,7 @@ void MainWindow::addBondPaths()
 
         WFNData * wfn = doc->get_wfn();
         if(wfn == NULL){
-            msgBox.setText("Wavefunction is not set");
-            msgBox.exec();
+            msgBox("Wavefunction is not set");
             return;
         }
 
@@ -519,7 +521,7 @@ void MainWindow::addBondPaths()
 
         QFile qtFile(bcp_file_name);
         if(qtFile.exists()){
-            printf("Reading file: %s\n",bcp_file_name.toStdString().data());
+            printf("Reading BCP file: %s\n",bcp_file_name.toStdString().data());
             std::ifstream file(bcp_file_name.toStdString());
             std::string line;
 
@@ -562,4 +564,10 @@ void MainWindow::addBondPaths()
         item->setText(0,name);
         item->setText(1,QString("bond_network"));
     }
+}
+
+void MainWindow::msgBox(QString msg){
+    QMessageBox msgBox(this);
+    msgBox.setText(msg);
+    msgBox.exec();
 }

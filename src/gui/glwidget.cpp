@@ -146,6 +146,7 @@ void GLWidget::mousePress_Select(QMouseEvent* event)
    for(int i = 0; i < papa->doc->get_atoms().size(); i++){
        diff = papa->doc->get_atoms().at(i) - V;
        if(diff.length() < 1e-5){
+           //todo: just prints a selected atom, but never stores the result
            printf("Selected atom number: %d\n",i);
            break;
        }
@@ -187,6 +188,7 @@ void GLWidget::mouseMove_Rotate(QMouseEvent* event)
     updateGL();
 }
 
+//returns the nearest 3D point (atom, helper, BCP)
 QVector3D GLWidget::getSelection(int cx, int cy)
 {
    if(!papa) return QVector3D(100000,100000,100000);

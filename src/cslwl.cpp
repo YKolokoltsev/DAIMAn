@@ -600,16 +600,15 @@ bool Cslwl::calc_bond_path(bool useBCP){
     count++;
     }
 
-    //TODO: KOSTYL!!!!
+    ret = (L >= 0 && L < 1e-6);
+
     return_calc_bond_path:
-    if(!ret){
-        memset(C,0,2*N*sizeof(double));
-        ret = true;
-    }
+    if(!ret) return false;
 
     if(useBCP){
         ret = calcBPCProps();
     }else{
+        //calls calcBPCProps automatically
         ret = findBCPOnLine();
     }
 

@@ -31,6 +31,7 @@ include_directories("${CMAKE_CURRENT_SOURCE_DIR}/camera")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/gui")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/old_misc")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/wavefunction")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/dataio")
 
 #executable
 file(GLOB DAIMAn_SRC
@@ -38,7 +39,8 @@ file(GLOB DAIMAn_SRC
         "wavefunction/*.cpp"
         "old_misc/*.cpp"
         "camera/*.cpp"
-        "gui/*.cpp")
+        "gui/*.cpp"
+        "dataio/*.cpp")
 
 add_executable(DAIMAn ${DAIMAn_SRC})
 set_property(TARGET DAIMAn PROPERTY CXX_STANDARD 11)

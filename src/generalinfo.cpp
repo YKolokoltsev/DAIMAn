@@ -4,10 +4,61 @@
 #include "stdio.h"
 #include "functions.h"
 
-GeneralInfo::GeneralInfo(MainWindow* parent)
-{
-    papa = parent;
-}
+QString  html_tmpl(
+        "<!DOCTYPE html>\n"
+                "<html><head>\n"
+                "  <title>Hello HTML</title>\n"
+                "\n"
+                "  \n"
+                "</head><body>\n"
+                "\n"
+                "<h2>Basic characteristics of the wave function</h2>\n"
+                "\n"
+                "<br>\n"
+                "\n"
+                "<table>\n"
+                "  <tbody>\n"
+                "    <tr>\n"
+                "      <td>Number of atoms  </td>\n"
+                "      <td>id0001</td>\n"
+                "    </tr>\n"
+                "    <tr>\n"
+                "      <td>Number of electrons  </td>\n"
+                "      <td>id0002</td>\n"
+                "    </tr>\n"
+                "    <tr>\n"
+                "      <td>Number of occupied orbitals  </td>\n"
+                "      <td>id0003</td>\n"
+                "    </tr>\n"
+                "    <tr>\n"
+                "      <td>Number of primitives  </td>\n"
+                "      <td>id0004</td>\n"
+                "    </tr>\n"
+                "    <tr>\n"
+                "      <td>Total molecular energy  </td>\n"
+                "      <td>id0005</td>\n"
+                "    </tr>\n"
+                "  </tbody>\n"
+                "</table>\n"
+                "\n"
+                "<br>\n"
+                "<h2>Calculated characteristics of the wave function</h2>\n"
+                "<br>\n"
+                "\n"
+                "<table>\n"
+                "  <tbody>\n"
+                "    <tr>\n"
+                "      <td>Number of MO, <i>i</i>   </td>\n"
+                "      <td>Norm*Nel   </td>\n"
+                "      <td>Energy   </td>\n"
+                "    </tr>\n"
+                "    id0006\n"
+                "  </tbody>\n"
+                "</table>\n"
+                "\n"
+                "\n"
+                "</body></html>");
+
 
 void GeneralInfo::CalculateInfo()
 {
@@ -16,10 +67,7 @@ void GeneralInfo::CalculateInfo()
 
 void GeneralInfo::LoadInfo()
 {
-    QFile file(QString("/home/data/unamwork/Programming/Analysis/Html/GeneralInfo.html"));
-    if(!file.open(QIODevice::ReadOnly)) return;
-    QString html = file.readAll();
-    file.close();
+    QString html = html_tmpl;//file.readAll();
 
     char str[100];
 

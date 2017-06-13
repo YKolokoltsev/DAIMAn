@@ -35,6 +35,7 @@ private slots:
     void addSurface();
     void addPlane();
     void addBondPaths();
+    void addNNAs();
     void delObject();
 
 private:
@@ -42,6 +43,7 @@ private:
     void createMenus();
     void createSubmenus();
     bool readWFX(QString path);
+    void msgBox(QString);
 
 private:
     QMenu   *fileMenu;
@@ -55,6 +57,7 @@ private:
     QAction *addSurfaceAct;
     QAction *addPlaneAct;
     QAction *calcBondPathsAct;
+    QAction *addNNAsAct;
     QAction *delObjectAct;
 
 public:
