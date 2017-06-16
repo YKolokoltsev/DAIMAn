@@ -10,6 +10,7 @@ GLWidget::GLWidget(MainWindow* parent)
 {
     lastPos = QPoint(0,0);
     papa = parent;
+    
 }
 
 void GLWidget::initializeGL()

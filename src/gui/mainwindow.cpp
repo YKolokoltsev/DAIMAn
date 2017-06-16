@@ -12,6 +12,7 @@
 #include "projecttree.h"
 #include <QTreeWidgetItem>
 #include "functions.h"
+#include "aim_sum_r.h"
 
 #include <boost/spirit/include/qi.hpp>
 #include <string>

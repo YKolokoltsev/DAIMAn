@@ -5,6 +5,7 @@
 #include <QtOpenGL/QGLWidget>
 #include "mainwindow.h"
 #include <QVector3D>
+#include <QtWidgets/QOpenGLWidget>
 
 class MainWindow;
 

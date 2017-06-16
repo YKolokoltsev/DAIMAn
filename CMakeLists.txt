@@ -10,4 +10,5 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_CURRENT_SOURCE_DIR}/modules/
 add_executable(test_concept test_concept.cpp)
 set_property(TARGET test_concept PROPERTY CXX_STANDARD 11)
 
-add_subdirectory(src)
+#add_subdirectory(src)
+add_subdirectory(src_v2)
