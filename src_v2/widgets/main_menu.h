@@ -8,16 +8,18 @@
 #include <QMenuBar>
 #include <QMainWindow>
 
-#include "doc_tree.hpp"
+#include "base_vertex.hpp"
+#include "graph.h"
+#include "ref_decorator.hpp"
 #include "gui_config.h"
 #include "main_window.h"
 
 class DMainWindow;
 
-class DMainMenu : public QMenuBar, public DocTree::BaseObj{
+class DMainMenu : public QMenuBar, public BaseObj{
 Q_OBJECT
 public:
-    DMainMenu(DocTree::node_desc_t);
+    DMainMenu(node_desc_t);
 
 private slots:
     void sl_open();
@@ -30,7 +32,7 @@ private:
 
 private:
     QMenu  *recentFilesMenu;
-    DocTree::ext_node_ptr_t<DMainWindow> main_window;
+    ext_weak_ptr_t<DMainWindow> main_window;
 };
 
 

@@ -9,7 +9,10 @@
 #include <QScreen>
 
 #include "main_menu.h"
-#include "doc_tree.hpp"
+#include "algorithm.hpp"
+#include "tree_ctrl.h"
+#include "wfndata.h"
+#include "wfxparser.h"
 
 DMainMenu::DMainMenu(DocTree::node_desc_t main_wnd_idx) {
     reg_weak(this);
@@ -92,42 +95,33 @@ void DMainMenu::updateRecentSubmenu(){
 }
 
 void DMainMenu::openWfx(QString path){
-    cout << "opening file: " << path.toStdString() << endl;
-    /*
-    WFNData* wfn = new WFNData();
+
+    auto wfn_idx = (new WFNData())->get_idx();
+    auto wfn = doc_get_weak_obj_ptr<WFNData>(this, wfn_idx);
 
     WFXParser parser;
-    parser.setWFN(wfn);
-    parser.openFile(path);
+    parser.setWFN(wfn->ptr.get()); //todo: a bit incorrect, but secure is this case
 
-    if(parser.parse())
-    {
-        if(wfn->calc_helpers())
-        {
-            doc->set_WFN(wfn);
-            doc->set_wfn_file_path(path);
-            glWidget->update();
-            tb->initActions();
-            return true;
-        }
-        delete wfn;
-        return false;
+    try{
+        if(!parser.openFile(path)) throw runtime_error("could not open wfx");
+        if(!parser.parse()) throw runtime_error("could not parse wfx");
+        if(!wfn->ptr->calc_helpers()) throw runtime_error("could not calculate helpers");
+
+        //find tree_ctrl
+        auto v_main_window = doc_first_nearest_father<DMainWindow*>(get_idx());
+        auto v_tree_ctrl = doc_first_nearest_child<DTreeCtrl*>(v_main_window);
+        auto p_tree_ctrl = doc_get_weak_obj_ptr<DTreeCtrl>(this, v_tree_ctrl);
+
+        p_tree_ctrl->ptr->add_wfx_item(path, wfn_idx);
+        //TODO
+        //create wfn node in doc_tree with functions
+        //save recent
+        //send update to gl
+        return;
+    }catch(runtime_error& ex){
+        //todo: test this
+        msgBox("Error: " + QString(ex.what()));
+        wfn.release();
+        remove_recursive(wfn_idx);
     }
-    else
-        delete wfn;
-    return false;
-
-     ////
-     if(addWFX(file_list.at(0))) {
-            GuiConfig::inst().add_recent(file_list.at(0)); //save to recent
-
-            //todo: create a tree node
-            //QTreeWidgetItem * root = new QTreeWidgetItem((QTreeWidgetItem*) NULL);
-            //root->setText(0,QFileInfo(parameters->str_recent.at(0)).fileName());
-            //root->setText(1,QString("structure"));
-            //treeWidget->insertTopLevelItem(0,root);
-}else{
-msgBox("Could not read " + file_list.at(0));
-};
-     */
 }

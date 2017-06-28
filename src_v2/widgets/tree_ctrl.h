@@ -6,18 +6,31 @@
 #define DAIMAN_DTREECTRL_H
 
 #include <QTreeWidget>
+#include <QEvent>
 
-#include "doc_tree.hpp"
+#include "graph.h"
+#include "ref_decorator.hpp"
 #include "client_splitter.h"
 
+class TreeCtrlEvent : public QEvent{
+public:
+    enum TYPE{DeleteWfxItem};
+    TreeCtrlEvent(TYPE type) : QEvent(QEvent::User), type{type} {}
+    TYPE type;
+};
+
 class DClientSplitter;
-class DTreeCtrl: public QTreeWidget, public DocTree::BaseObj {
+class DTreeCtrl: public QTreeWidget, public BaseObj {
 Q_OBJECT
 public:
-    DTreeCtrl(DocTree::node_desc_t);
+    DTreeCtrl(node_desc_t);
+    void add_wfx_item(QString, node_desc_t);
+
+protected:
+    void contextMenuEvent(QContextMenuEvent*);
 
 private:
-    DocTree::ext_node_ptr_t<DClientSplitter> client_edge;
+    ext_weak_ptr_t<DClientSplitter> client_edge;
 };
 
 

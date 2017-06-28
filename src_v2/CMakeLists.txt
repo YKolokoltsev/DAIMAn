@@ -10,7 +10,9 @@ include_directories(${Qt5Xml_INCLUDE_DIRS})
 include_directories(${Qt5OpenGL_INCLUDE_DIRS})
 
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/widgets/tree_items")
 include_directories("${CMAKE_CURRENT_SOURCE_DIR}/document")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 add_definitions(${Qt5Widgets_DEFINITIONS})
 add_definitions(${Qt5Xml_DEFINITIONS})
@@ -25,7 +27,9 @@ file(GLOB DAIMAn2_SRC
         "*.cpp"
         "widgets/*.cpp"
         "document/*.cpp"
-        "document/*.hpp")
+        "document/*.hpp"
+        "data/*.cpp"
+        "widgets/tree_items/*.hpp")
 
 add_executable(DAIMAn2 ${DAIMAn2_SRC})
 set_property(TARGET DAIMAn2 PROPERTY CXX_STANDARD 11)

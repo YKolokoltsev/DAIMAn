@@ -6,17 +6,18 @@
 #define DAIMAN_CLIENTEDGE_H
 
 #include <QSplitter>
-#include "doc_tree.hpp"
+#include "base_vertex.hpp"
+#include "ref_decorator.hpp"
 #include "main_window.h"
 
 class DMainWindow;
 
-class DClientSplitter : public QSplitter, public DocTree::BaseObj {
+class DClientSplitter : public QSplitter, public BaseObj {
 Q_OBJECT
 public:
-    DClientSplitter(DocTree::node_desc_t);
+    DClientSplitter(node_desc_t);
 private:
-    DocTree::ext_node_ptr_t<DMainWindow> main_window;
+    ext_weak_ptr_t<DMainWindow> main_window;
 };
 
 

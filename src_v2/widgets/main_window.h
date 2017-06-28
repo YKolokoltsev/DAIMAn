@@ -3,10 +3,10 @@
 
 #include <QMainWindow>
 
-#include "doc_tree.hpp"
+#include "base_vertex.hpp"
 #include "gui_config.h"
 
-class DMainWindow : public QMainWindow, public DocTree::BaseObj {
+class DMainWindow : public QMainWindow, public BaseObj {
 Q_OBJECT
 public:
     DMainWindow();

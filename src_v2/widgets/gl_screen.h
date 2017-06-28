@@ -7,15 +7,17 @@
 
 #include <QtOpenGL/QGLWidget>
 
-#include "doc_tree.hpp"
+#include "base_vertex.hpp"
+#include "graph.h"
+#include "ref_decorator.hpp"
 #include "client_splitter.h"
 
-class DGlScreen : public QGLWidget , public DocTree::BaseObj{
+class DGlScreen : public QGLWidget , public BaseObj{
 Q_OBJECT
 public:
-    DGlScreen(DocTree::node_desc_t);
+    DGlScreen(node_desc_t);
 private:
-    DocTree::ext_node_ptr_t<DClientSplitter> client_edge;
+    ext_weak_ptr_t<DClientSplitter> client_edge;
 };
 
 

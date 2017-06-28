@@ -6,14 +6,14 @@
 #include "tree_ctrl.h"
 #include "gl_screen.h"
 
-DClientSplitter::DClientSplitter(DocTree::node_desc_t main_wnd_idx){
+DClientSplitter::DClientSplitter(node_desc_t main_wnd_idx){
     reg_weak(this);
-    main_window = std::move(doc_get_weak_obj_ptr<DMainWindow>(this,main_wnd_idx));
+    main_window = std::move(get_weak_obj_ptr<DMainWindow>(this,main_wnd_idx));
 
     setOpaqueResize(false);
 
     new DTreeCtrl(get_idx());
     new DGlScreen(get_idx());
 
-    main_window->ptr->setCentralWidget(this);
+    main_window->ptr.lock()->setCentralWidget(this);
 }

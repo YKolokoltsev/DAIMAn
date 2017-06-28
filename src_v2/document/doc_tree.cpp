@@ -6,6 +6,7 @@
 
 DocTree* DocTree::instance = nullptr;
 
+//todo: may be better smart pointer?
 DocTree* DocTree::inst() {
     if(DocTree::instance == nullptr){
         DocTree::instance = new DocTree();
@@ -29,38 +30,43 @@ void DocTree::clear(){
     std::list< node_desc_t > c;
     topological_sort(g, std::front_inserter(c));
     for(auto v : c){
-        auto ptr = static_cast<BaseObj*>(g[v].ptr.get());
-        clear_vertex(v, g);
-        remove_vertex(v, g);
-        //node shell know that it is deleted from graph
-        ptr->v = null_vertex;
-        cout << "cleared: " << thash_name_map[g[v].type_hash] << endl;
+        if(g[v].ptr != nullptr){
+            dynamic_pointer_cast<BaseObj>(g[v].ptr)->unreg();
+        }else{
+            //todo: make topological sort after each unregister to
+            //todo: avoid this "else"
+            auto hash = g[v].type_hash;
+            clear_vertex(v, g);
+            remove_vertex(v, g);
+            cerr << "cleared: " << thash_name_map[hash] << endl;
+        }
     }
 
     thash_name_map.clear();
 }
 
-DocTree::edge_desc_t DocTree::add_dependency(DocTree::node_desc_t from, DocTree::node_desc_t to){
+/*
+ * This function checks if both node are properly registered
+ * and maintains a directed graph without cycles. If there
+ * happens a cyclic dependency - there is something very wrong
+ * and shell be redesigned.
+ */
+edge_desc_t DocTree::add_dependency(node_desc_t from, node_desc_t to){
     //cout << "adding edge: " << from << "->" << to << endl;
     auto eb = add_edge(from,to,g);
+    //todo: inspect double dependencies, shell not happen
     if(!eb.second) throw runtime_error("can't add dependency edge");
 
     //if there is a cycle, an exception will happen
-    std::vector< DocTree::node_desc_t > c;
+    std::vector<node_desc_t > c;
     topological_sort(g, std::back_inserter(c));
     return eb.first;
 }
 
-//**********************************non-template interface functions
-
-void doc_clear(){
-    DocTree::inst()->clear();
+size_t DocTree::node_count(){
+    return num_vertices(g);
 }
 
-size_t doc_node_count(){
-    return num_vertices(DocTree::inst()->g);
-}
-
-size_t doc_edge_count(){
-    return num_edges(DocTree::inst()->g);
+size_t DocTree::edge_count(){
+    return num_edges(g);
 }
