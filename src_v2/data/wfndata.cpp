@@ -4,13 +4,11 @@
 #include "math.h"
 
 WFNData::WFNData(){
-    reg_shared(this);
+    reg(this, false);
 }
 
 WFNData::~WFNData(){
-    cout << "deleting WFNData (destructor)" << endl;
     clear();
-    cout << "deleting WFNData (destructor - done)" << endl;
 }
 
 void WFNData::clear(){

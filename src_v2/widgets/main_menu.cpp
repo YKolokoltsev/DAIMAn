@@ -14,19 +14,19 @@
 #include "wfndata.h"
 #include "wfxparser.h"
 
-DMainMenu::DMainMenu(DocTree::node_desc_t main_wnd_idx) {
-    reg_weak(this);
-    main_window = std::move(doc_get_weak_obj_ptr<DMainWindow>(this,main_wnd_idx));
-    main_window->ptr->setMenuBar(this);
+DMainMenu::DMainMenu(node_desc_t main_wnd_idx) {
+    reg(this, true);
+    main_window = std::move(get_weak_obj_ptr<DMainWindow>(this,main_wnd_idx));
+    main_window->ptr.lock()->setMenuBar(this);
 
     //main menu
     auto fileMenu = addMenu(tr("&File"));
     fileMenu->addAction(tr("&Open..."), this, SLOT(sl_open()) );
-    recentFilesMenu = new QMenu("Recent Files",main_window->ptr.get());
+    recentFilesMenu = new QMenu("Recent Files",main_window->ptr.lock().get());
     fileMenu->addMenu(recentFilesMenu);
     recentFilesMenu->setDisabled(true);
     fileMenu->addSeparator();
-    fileMenu->addAction(tr("E&xit"), main_window->ptr.get(),SLOT(close()) );
+    fileMenu->addAction(tr("E&xit"), main_window->ptr.lock().get(),SLOT(close()) );
 
     //recent submenu
     for(int i = 0; i < GuiConfig::inst().max_recent; i++)
@@ -35,7 +35,7 @@ DMainMenu::DMainMenu(DocTree::node_desc_t main_wnd_idx) {
 };
 
 void DMainMenu::sl_open(){
-    QFileDialog dialog(main_window->ptr.get());
+    QFileDialog dialog(main_window->ptr.lock().get());
 
     //set dialog geometry
     QRect scr = QGuiApplication::primaryScreen()->availableGeometry();
@@ -64,13 +64,6 @@ void DMainMenu::sl_open_recent(){
     openWfx(action->data().toString());
 }
 
-//PRIVATE FUNCTIONS
-void DMainMenu::msgBox(QString msg){
-    QMessageBox msgBox(main_window->ptr.get());
-    msgBox.setText(msg);
-    msgBox.exec();
-}
-
 void DMainMenu::updateRecentSubmenu(){
        auto files = GuiConfig::inst().read_recent();
 
@@ -97,31 +90,38 @@ void DMainMenu::updateRecentSubmenu(){
 void DMainMenu::openWfx(QString path){
 
     auto wfn_idx = (new WFNData())->get_idx();
-    auto wfn = doc_get_weak_obj_ptr<WFNData>(this, wfn_idx);
-
-    WFXParser parser;
-    parser.setWFN(wfn->ptr.get()); //todo: a bit incorrect, but secure is this case
+    auto wfn = get_weak_obj_ptr<WFNData>(this, wfn_idx);
 
     try{
+        //open and parse the file
+        WFXParser parser;
+        parser.setWFN(wfn->ptr.lock().get());
         if(!parser.openFile(path)) throw runtime_error("could not open wfx");
         if(!parser.parse()) throw runtime_error("could not parse wfx");
-        if(!wfn->ptr->calc_helpers()) throw runtime_error("could not calculate helpers");
+        if(!wfn->ptr.lock()->calc_helpers()) throw runtime_error("could not calculate helpers");
 
-        //find tree_ctrl
+        //update recent files
+        GuiConfig::inst().add_recent(path);
+        updateRecentSubmenu();
+
+        //find tree_ctrl and add wfx to tree
         auto v_main_window = doc_first_nearest_father<DMainWindow*>(get_idx());
         auto v_tree_ctrl = doc_first_nearest_child<DTreeCtrl*>(v_main_window);
-        auto p_tree_ctrl = doc_get_weak_obj_ptr<DTreeCtrl>(this, v_tree_ctrl);
+        auto p_tree_ctrl = get_weak_obj_ptr<DTreeCtrl>(this, v_tree_ctrl);
+        p_tree_ctrl->ptr.lock()->add_wfx_item(path, wfn_idx);
 
-        p_tree_ctrl->ptr->add_wfx_item(path, wfn_idx);
         //TODO
-        //create wfn node in doc_tree with functions
-        //save recent
         //send update to gl
-        return;
     }catch(runtime_error& ex){
-        //todo: test this
         msgBox("Error: " + QString(ex.what()));
-        wfn.release();
+        wfn.reset();
         remove_recursive(wfn_idx);
     }
+}
+
+//PRIVATE FUNCTIONS
+void DMainMenu::msgBox(QString msg){
+    QMessageBox msgBox(main_window->ptr.lock().get());
+    msgBox.setText(msg);
+    msgBox.exec();
 }

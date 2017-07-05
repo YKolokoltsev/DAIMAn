@@ -29,6 +29,9 @@ public:
 protected:
     void contextMenuEvent(QContextMenuEvent*);
 
+public slots:
+    void sl_del_item();
+
 private:
     ext_weak_ptr_t<DClientSplitter> client_edge;
 };

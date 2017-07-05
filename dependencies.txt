@@ -3,3 +3,4 @@ libeigen3-dev
 libcgal-dev
 libcgal-qt5-dev
 liblapacke-dev
+qt3d5-dev

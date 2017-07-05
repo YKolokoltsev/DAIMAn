@@ -10,6 +10,7 @@
 #include <map>
 #include <set>
 #include <list>
+#include <mutex>
 
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/topological_sort.hpp>
@@ -45,14 +46,14 @@ using namespace boost;
  * causality dependencies (graph edges) between the objects (graph nodes).
  */
 
+class BaseObj; //todo: required only for clear function, move clear to algorithms!!!
 class DocTree{
 public:
-    class BaseObj; //todo: required only for clear function, move clear to algorithms!!!
     static DocTree* inst();
     ~DocTree(){clear();}
 
     void clear();
-    edge_desc_t add_dependency(node_desc_t, node_desc_t);
+    edge_desc_t add_dependency(node_desc_t, node_desc_t); //todo: how do you add edge props here? bad!!!
     size_t node_count();
     size_t edge_count();
 
@@ -63,6 +64,7 @@ public:
 
 private:
     static DocTree* instance;
+    static std::mutex mtx;
     DocTree() : g(), null_vertex{g.null_vertex()} {};
 };
 

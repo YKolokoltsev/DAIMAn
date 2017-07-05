@@ -15,10 +15,6 @@
 class found_node_exception : public std::exception{
 public:
     found_node_exception(node_desc_t v): v{v} {};
-    //todo: a ono nado?
-    //virtual const char* what() const throw() {
-    //    return nullptr;
-    //}
     const node_desc_t v;
 };
 
@@ -36,21 +32,24 @@ private:
     const size_t type_hash;
 };
 
-//todo: traverse dependencies only
 template<typename TNodeDesc>
-class list_all_visitor : public boost::default_bfs_visitor{
+class list_deps_visitor : public boost::default_bfs_visitor{
 public:
     typedef std::shared_ptr<std::list<TNodeDesc>> t_list;
-    list_all_visitor(t_list nlist):nlist{nlist}{};
+    list_deps_visitor(t_list nlist, bool inverse):nlist{nlist}, inverse{inverse} {};
 
     template < typename Vertex, typename Graph >
     void discover_vertex(Vertex u, const Graph& g) const {
-        nlist->push_back(u);
-        std::cout << "visited: " << u << std::endl;
+        if(inverse){
+            nlist->push_front(u);
+        }else{
+            nlist->push_back(u);
+        }
     }
 
 private:
     std::shared_ptr<std::list<TNodeDesc>> nlist;
+    bool inverse;
 };
 
 

@@ -4,27 +4,38 @@
 
 #include <QContextMenuEvent>
 #include <QApplication>
-#include <QObject>
 
 #include "tree_ctrl.h"
-#include "wfx_item.hpp"
+#include "wfx_item.h"
 
-DTreeCtrl::DTreeCtrl(DocTree::node_desc_t client_edge_idx) {
-    reg_weak(this);
-    client_edge = std::move(doc_get_weak_obj_ptr<DClientSplitter>(this,client_edge_idx));
+DTreeCtrl::DTreeCtrl(node_desc_t client_edge_idx) {
+    reg(this, true);
+    client_edge = std::move(get_weak_obj_ptr<DClientSplitter>(this,client_edge_idx));
 
     setColumnCount(1);
     headerItem()->setText(0,"Document");
 
-    client_edge->ptr->addWidget(this);
+    client_edge->ptr.lock()->addWidget(this);
 }
 
 void DTreeCtrl::contextMenuEvent(QContextMenuEvent* p_Context){
-    QObject* p_Item = dynamic_cast<QObject*>(itemAt(p_Context->x(),p_Context->y()));
-    if(!p_Item) return;
-    QApplication::postEvent(p_Item, new WfxItemEvent(WfxItemEvent::Context, p_Context->globalPos()));
+    DWfxItem* item = dynamic_cast<DWfxItem*>(itemAt(p_Context->x(),p_Context->y()));
+    if(item){
+        auto menu = item->context_menu();
+        menu->exec(p_Context->globalPos());
+        menu->clear();
+    }
 }
 
-void DTreeCtrl::add_wfx_item(QString path,  DocTree::node_desc_t wfx_idx){
+void DTreeCtrl::add_wfx_item(QString path,  node_desc_t wfx_idx){
     new DWfxItem(path, get_idx(), wfx_idx);
 }
+
+
+void DTreeCtrl::sl_del_item(){
+    auto item = dynamic_cast<DWfxItem*>(currentItem());
+    if(item){
+        item->reset();
+        delete item;
+    };
+};

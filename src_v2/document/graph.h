@@ -14,6 +14,11 @@ using namespace boost;
 //A polymorphic type is needed to define Graph type with pointers able to be downcasted
 struct Polymorph{
     virtual ~Polymorph(){};
+    bool autoremove_vertex = true;
+    bool weak(){return is_weak;}
+
+//protected:
+    bool is_weak;
 };
 
 /*
@@ -45,8 +50,8 @@ enum class DependencyType{Shared, Weak};
  */
 struct vertex_info{
     std::shared_ptr<Polymorph> ptr;
-    StorageType st;
     size_t type_hash;
+    void* ref_ptr;
 };
 
 /*
@@ -60,6 +65,8 @@ struct edge_info{
 /*
  * We use a bidirectional graph to have a chance to follow the graph
  * edges in both directions.
+ *
+ * //initial try is a vecS... vertex invalidate is unacceptable property!!! trying listS!
  */
 typedef adjacency_list<vecS, vecS, bidirectionalS, vertex_info, edge_info> Graph;
 typedef typename graph_traits<Graph>::edge_descriptor edge_desc_t;

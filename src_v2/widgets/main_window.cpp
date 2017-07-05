@@ -10,15 +10,13 @@
 #include "main_menu.h"
 #include "client_splitter.h"
 
-DMainWindow::DMainWindow(){
-    reg_shared(this);
+DMainWindow::DMainWindow() {
+    reg(this, false);
 
-    //main window geometry
     QRect scr = QGuiApplication::primaryScreen()->availableGeometry();
     scr.setRect(scr.width()/10,scr.height()/10,scr.width()*4/5,scr.height()*4/5);
     setGeometry(scr);
 
-    //create main_menu
     new DMainMenu(get_idx());
     new DClientSplitter(get_idx());
 
