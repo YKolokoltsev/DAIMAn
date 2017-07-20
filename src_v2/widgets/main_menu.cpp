@@ -13,6 +13,8 @@
 #include "tree_ctrl.h"
 #include "wfndata.h"
 #include "wfxparser.h"
+#include "scene_entity.h"
+#include "gl_screen.h"
 
 DMainMenu::DMainMenu(node_desc_t main_wnd_idx) {
     reg(this, true);
@@ -105,13 +107,17 @@ void DMainMenu::openWfx(QString path){
         updateRecentSubmenu();
 
         //find tree_ctrl and add wfx to tree
-        auto v_main_window = doc_first_nearest_father<DMainWindow*>(get_idx());
-        auto v_tree_ctrl = doc_first_nearest_child<DTreeCtrl*>(v_main_window);
+        auto v_main_window = doc_first_nearest_father<DMainWindow>(get_idx());
+        auto v_tree_ctrl = doc_first_nearest_child<DTreeCtrl>(v_main_window);
         auto p_tree_ctrl = get_weak_obj_ptr<DTreeCtrl>(this, v_tree_ctrl);
         p_tree_ctrl->ptr.lock()->add_wfx_item(path, wfn_idx);
 
-        //TODO
-        //send update to gl
+        //add new scene to wfx and show it
+        auto gl_idx = doc_first_nearest_child<DGlScreen>(v_main_window);
+        new DSceneEntity(wfn_idx, gl_idx);
+        auto gl = get_weak_obj_ptr<DGlScreen>(this, gl_idx);
+        gl->ptr.lock()->switch_scene(wfn_idx);
+
     }catch(runtime_error& ex){
         msgBox("Error: " + QString(ex.what()));
         wfn.reset();

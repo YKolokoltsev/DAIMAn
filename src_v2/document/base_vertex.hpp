@@ -19,7 +19,7 @@ using namespace boost;
  * pointer in it's container (weak or shared) shell be done as a first
  * line of it's constructor. Use reg_shared/reg_weak for this purpose.
  */
-//todo: rename to DocVertex
+//todo: rename to DocVertex, standardize variables names
 struct BaseObj : public Polymorph{
 public:
 
@@ -28,12 +28,23 @@ public:
         cout << this << " deleted" << endl;
     }
 
-    node_desc_t get_idx(){
+    node_desc_t get_idx() const {
         graph_traits<Graph>::vertex_iterator vi, vi_end;
         DocTree* dt = DocTree::inst();
         tie(vi, vi_end) = vertices(dt->g);
         for(;vi != vi_end; vi++){
-            if(dt->g[*vi].ref_ptr == this) return *vi;
+            if(dt->g[*vi].ref_ptr == (void*) this) return *vi;
+        }
+        return dt->g.null_vertex();
+    }
+
+    node_desc_t get_idx_debug(){
+        graph_traits<Graph>::vertex_iterator vi, vi_end;
+        DocTree* dt = DocTree::inst();
+        tie(vi, vi_end) = vertices(dt->g);
+        cout << "search index for object: " << this << endl;
+        for(;vi != vi_end; vi++){
+            cout << dt->g[*vi].ref_ptr << " " << dt->thash_name_map[dt->g[*vi].type_hash] << endl;
         }
         return dt->g.null_vertex();
     }

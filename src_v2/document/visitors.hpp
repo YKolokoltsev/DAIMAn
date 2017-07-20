@@ -5,6 +5,7 @@
 #ifndef DAIMAN_VISITORS_H
 #define DAIMAN_VISITORS_H
 
+#include <set>
 #include <boost/graph/breadth_first_search.hpp>
 
 #include "graph.h"
@@ -36,7 +37,7 @@ template<typename TNodeDesc>
 class list_deps_visitor : public boost::default_bfs_visitor{
 public:
     typedef std::shared_ptr<std::list<TNodeDesc>> t_list;
-    list_deps_visitor(t_list nlist, bool inverse):nlist{nlist}, inverse{inverse} {};
+    list_deps_visitor(t_list nlist, bool inverse, bool print):nlist{nlist}, inverse{inverse}, print{print} {};
 
     template < typename Vertex, typename Graph >
     void discover_vertex(Vertex u, const Graph& g) const {
@@ -45,11 +46,34 @@ public:
         }else{
             nlist->push_back(u);
         }
+        if(print) cout << "discovered: " << u << endl;
     }
 
 private:
     std::shared_ptr<std::list<TNodeDesc>> nlist;
     bool inverse;
+    bool print;
+};
+
+template<typename TTarget>
+class next_dep_visitor  : public boost::default_bfs_visitor{
+public:
+    next_dep_visitor():
+            type_hash( typeid(TTarget).hash_code()),
+            discovered(new std::set<void*>()){};
+
+    template < typename Vertex, typename Graph >
+    void discover_vertex(Vertex u, const Graph& g) {
+        if(type_hash == g[u].type_hash && discovered->find(g[u].ref_ptr) == discovered->end()) {
+            discovered->insert(g[u].ref_ptr);
+            throw found_node_exception(u);
+        }
+    }
+
+private:
+    //share same set over all next_dep_visitor copies
+    std::shared_ptr<std::set<void*>> discovered;
+    const size_t type_hash;
 };
 
 

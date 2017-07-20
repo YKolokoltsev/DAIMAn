@@ -4,6 +4,7 @@
 
 #include "wfx_item.h"
 #include "loaded_atoms_item.h"
+#include "gl_screen.h"
 
 DWfxItem::DWfxItem(QString path, node_desc_t tree_ctrl_idx, node_desc_t wfn_idx): path{path} {
     reg(this, true);
@@ -15,18 +16,12 @@ DWfxItem::DWfxItem(QString path, node_desc_t tree_ctrl_idx, node_desc_t wfn_idx)
     tree_ctrl->ptr.lock()->insertTopLevelItem(0, this);
 }
 
-void DWfxItem::reset(){
-    tree_ctrl.reset();
-    auto idx_wfx = wfn->ptr.lock()->get_idx();
-    wfn.reset();
-    remove_recursive(idx_wfx);
-}
+std::unique_ptr<QMenu> DWfxItem::context_menu(QWidget* menu_parent){
+    std::unique_ptr<QMenu> menu(new QMenu(menu_parent));
 
-QMenu* DWfxItem::context_menu(){
-    QMenu* menu = new QMenu(dynamic_cast<QTreeWidget*>(tree_ctrl->ptr.lock().get()));
-
+    menu->addAction("Activate Scene", this, SLOT(sl_activate_scene()) );
     auto load_atoms_act = menu->addAction(tr("Load atoms"), this, SLOT(sl_load_atoms()) );
-    auto loaded_atoms_idx = doc_first_nearest_child<DLoadedAtomsItem*>(get_idx());
+    auto loaded_atoms_idx = doc_first_nearest_child<DLoadedAtomsItem>(get_idx());
     if(loaded_atoms_idx == DocTree::inst()->null_vertex){
         load_atoms_act->setEnabled(true);
     }else{
@@ -39,5 +34,12 @@ QMenu* DWfxItem::context_menu(){
 
 void DWfxItem::sl_load_atoms(){
     new DLoadedAtomsItem(get_idx(),wfn->ptr.lock()->get_idx());
-};
+}
+
+void DWfxItem::sl_activate_scene(){
+    auto v_client_splitter = doc_first_nearest_father<DClientSplitter>(get_idx());
+    auto v_gl_screen = doc_first_nearest_child<DGlScreen>(v_client_splitter);
+    auto gl_screen = std::move(get_weak_obj_ptr<DGlScreen>(this,v_gl_screen));
+    gl_screen->ptr.lock()->switch_scene(wfn->ptr.lock()->get_idx());
+}
 

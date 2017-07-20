@@ -16,17 +16,21 @@
 #include "loaded_atoms_item.h"
 
 class DLoadedAtomsItem;
-class DAtomItem : public QTreeWidgetItem, public BaseObj{
+class DAtomItem : public IItem{
 public:
     DAtomItem(node_desc_t, node_desc_t, int);
+    void add3DEntity();
+    void remove3DEntity();
+    bool check_entity_exist();
 
+    virtual void setData(int column, int role, const QVariant &value);
+    virtual std::unique_ptr<QMenu> context_menu(QWidget* menu_parent){};
+    virtual void setChecked(bool checked);
 private:
     ext_weak_ptr_t<DLoadedAtomsItem> loaded_atoms_item;
     ext_weak_ptr_t<WFNData> wfn;
     const int atom_no;
-
-//graphics
-    Qt3D::QEntity *m_sphereEntity;
+    Qt3DCore::QEntity* boundingBoxEntity;
 };
 
 

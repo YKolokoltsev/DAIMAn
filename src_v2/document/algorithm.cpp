@@ -11,7 +11,7 @@ void remove_recursive(node_desc_t v_root){
 
     using t_visitor = list_deps_visitor<node_desc_t>;
     auto vertices = t_visitor::t_list(new t_visitor::t_list::element_type);
-    t_visitor vis(vertices, true);
+    t_visitor vis(vertices, true, true);
 
     breadth_first_search(make_reverse_graph<Graph>(dt->g), v_root, visitor(vis));
 
@@ -24,10 +24,11 @@ void remove_recursive(node_desc_t v_root){
     while(!vertices->empty()){
         auto v = vertices->front();
         auto hash = dt->g[v].type_hash;
+        dt->g[v].ptr->autoremove_vertex = false;
         clear_vertex(v, dt->g);
         remove_vertex(v, dt->g);
         count--;
-        cout << "removed vertex "<< v <<" for " << dt->thash_name_map[hash] << endl;
+        cout << "removed vertex with edges "<< v <<" for " << dt->thash_name_map[hash] << endl;
         if(vertices->size() == 1){
             break;
         }else{
@@ -41,5 +42,5 @@ void remove_recursive(node_desc_t v_root){
     //implicit vertex remove should not happen, it would mean
     //that one vertex, during it's remove process, most likely
     //in it's top level destructor, called a remove vertex
-    if(count != 0) cerr << "check for lost vertices" << endl;
+    if(count != 0) cerr << "check for lost vertices, IT IS AN UNKNOWN BUG" << endl;
 }

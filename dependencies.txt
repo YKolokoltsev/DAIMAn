@@ -4,3 +4,6 @@ libcgal-dev
 libcgal-qt5-dev
 liblapacke-dev
 qt3d5-dev
+libatspi2.0-dev
+
+TODO: Look At QtSataVis3D, there may be useful things to add here

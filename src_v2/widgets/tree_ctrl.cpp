@@ -12,16 +12,18 @@ DTreeCtrl::DTreeCtrl(node_desc_t client_edge_idx) {
     reg(this, true);
     client_edge = std::move(get_weak_obj_ptr<DClientSplitter>(this,client_edge_idx));
 
-    setColumnCount(1);
+    setColumnCount(2);
     headerItem()->setText(0,"Document");
+    headerItem()->setText(1,"");
 
     client_edge->ptr.lock()->addWidget(this);
 }
 
 void DTreeCtrl::contextMenuEvent(QContextMenuEvent* p_Context){
-    DWfxItem* item = dynamic_cast<DWfxItem*>(itemAt(p_Context->x(),p_Context->y()));
+    IItem* item = dynamic_cast<IItem*>(itemAt(p_Context->x(),p_Context->y()));
     if(item){
-        auto menu = item->context_menu();
+        auto menu = item->context_menu(this);
+        if(!menu) return;
         menu->exec(p_Context->globalPos());
         menu->clear();
     }
@@ -35,7 +37,8 @@ void DTreeCtrl::add_wfx_item(QString path,  node_desc_t wfx_idx){
 void DTreeCtrl::sl_del_item(){
     auto item = dynamic_cast<DWfxItem*>(currentItem());
     if(item){
-        item->reset();
+        auto wfx_idx = doc_first_nearest_father<WFNData>(item->get_idx());
+        remove_recursive(wfx_idx);
         delete item;
     };
 };

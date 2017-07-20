@@ -68,7 +68,7 @@ ext_shared_ptr_t<T> get_obj_ptr(BaseObj* who, node_desc_t v) {
     if(v == dt->null_vertex) throw runtime_error("null_vertex has no object");
     if(who == nullptr) throw runtime_error("can't add edge to null object");
     if(dt->g[v].ptr.use_count() == 0) throw runtime_error("requested object node not initialized");
-    if(dt->g[v].ptr->weak()) throw runtime_error("shared links to weak objects not permitted");
+    if(dt->g[v].ptr->is_weak) throw runtime_error("shared links to weak objects not permitted");
 
     auto edge = dt->add_dependency(who->get_idx(),v);
     dt->g[edge].dt = DependencyType::Shared;

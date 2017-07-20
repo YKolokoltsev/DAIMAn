@@ -33,6 +33,7 @@ void DocTree::clear(){
     while(c.size() > 0){
         auto v = c.front();
         auto hash = g[v].type_hash;
+        g[v].ptr->autoremove_vertex = false;
         clear_vertex(v, g);
         remove_vertex(v, g);
         cout << "removed vertex "<< v <<" for " << thash_name_map[hash] << endl;

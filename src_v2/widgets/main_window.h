@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <Qt3DExtras/Qt3DWindow>
 
 #include "base_vertex.hpp"
 #include "gui_config.h"
