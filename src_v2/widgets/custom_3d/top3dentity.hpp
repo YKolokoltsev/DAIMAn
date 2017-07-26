@@ -42,14 +42,13 @@ struct Top3DEntity : public Qt3DCore::QEntity, public BaseObj, public Top3DEntit
         reg(this, false);
         parent = std::move(get_weak_obj_ptr<TParent>(this, parent_idx));
 
-        auto v_wfx = doc_first_nearest_father<WFNData>(get_idx());
-        auto v_scene = doc_first_nearest_child<DSceneEntity>(v_wfx);
-        auto scene = get_obj_ptr<DSceneEntity>(this, v_scene);
-        setParent(scene->ptr.get());
+        ///
 
         Qt3DRender::QObjectPicker* const objectPicker = new Top3DEntityPicker(this);
         addComponent(objectPicker);
     }
+
+    void add_to_scene();
 
     virtual void setChecked(bool checked){
         //just stand-alone geometric object, no sense to check
@@ -82,10 +81,10 @@ public slots:
     void clicked_sl(Qt3DRender::QPickEvent *pick){
 
         try{
-            auto ent = dynamic_cast<Qt3DCore::QEntity*>(this->parentNode());
-            if(ent == nullptr) throw runtime_error("Top3DEntityPicker has no parent entity");
+            auto top3DEntity = dynamic_cast<Qt3DCore::QEntity*>(this->parentNode());
+            if(top3DEntity == nullptr) throw runtime_error("Top3DEntityPicker has no parent entity");
 
-            auto boundingBoxEntity = ent->findChild<Qt3DCore::QEntity*>("boundingBoxEntity");
+            auto boundingBoxEntity = top3DEntity->findChild<Qt3DCore::QEntity*>("boundingBoxEntity");
             if(boundingBoxEntity == nullptr) throw runtime_error("boundingBoxEntity not defined");
             boundingBoxEntity->setEnabled(!boundingBoxEntity->isEnabled());
 

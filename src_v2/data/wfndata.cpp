@@ -4,7 +4,6 @@
 #include "math.h"
 
 WFNData::WFNData(){
-    reg(this, false);
 }
 
 WFNData::~WFNData(){

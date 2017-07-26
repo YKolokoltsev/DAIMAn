@@ -1,15 +1,17 @@
 #ifndef WFNDATA_H
 #define WFNDATA_H
 
+#include <string>
 #include "structs.h"
 #include "base_vertex.hpp"
 
-class WFNData : public BaseObj {
+class WFNData : public ThreadSafeBaseObject {
 public:
     WFNData();
     ~WFNData();
 
 public:
+    std::string path; //path to wfx file
     char*    title{nullptr};
     char*    keywords{nullptr};    //Gaussian or Slater type of orbitals
     int      nat{0};         //number of atoms

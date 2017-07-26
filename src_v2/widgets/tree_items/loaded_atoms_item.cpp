@@ -14,12 +14,15 @@ DLoadedAtomsItem::DLoadedAtomsItem(node_desc_t wfx_item_idx, node_desc_t wfx_idx
     wfx_item->ptr.lock()->insertChild(0,this);
 
     //auto-load all atoms
-    auto wfn = std::move(get_weak_obj_ptr<WFNData>(this, wfx_idx));
-    auto p_wfn = wfn->ptr.lock();
-    auto own_idx = get_idx();
-    for(int atom_no = 0; atom_no < p_wfn->nat; atom_no++){
-        new DAtomItem(own_idx, wfx_idx, atom_no);
+    auto wfn = std::move(get_shared_obj_ptr<WFNData>(this, wfx_idx));
+    int nat;
+    wfn->exec_r([&](const WFNData* p_wfn){nat = p_wfn->nat;});
+    for(int atom_no = 0; atom_no < nat; atom_no++){
+        new DAtomItem(get_idx(), wfx_idx, atom_no);
     }
+
+    //todo: why not here? probably a bug
+    //sl_show_all_atoms();
 }
 
 std::unique_ptr<QMenu> DLoadedAtomsItem::context_menu(QWidget* menu_parent){
@@ -38,7 +41,6 @@ std::unique_ptr<QMenu> DLoadedAtomsItem::context_menu(QWidget* menu_parent){
     auto hide_atoms_act = menu->addAction(tr("Hide atoms"), this, SLOT(sl_hide_all_atoms()) );
     hide_atoms_act->setEnabled(can_hide);
 
-    //menu->addAction(tr("Remove"), tree_ctrl->ptr.lock().get(), SLOT(sl_del_item()) );
     return menu;
 }
 

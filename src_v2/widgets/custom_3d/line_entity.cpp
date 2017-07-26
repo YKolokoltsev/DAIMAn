@@ -2,6 +2,8 @@
 // Created by morrigan on 19/07/17.
 //
 
+#include <Qt3DExtras>
+
 #include "line_entity.h"
 
 LineEntity::LineEntity(Qt3DCore::QEntity * root_entity) :
@@ -56,7 +58,7 @@ LineEntity::LineEntity(Qt3DCore::QEntity * root_entity) :
 void LineEntity::setGeometry(t_vertex_vec& vertices, t_index_vec& indices, t_primitive_type primitive_type){
     //vertices
     QByteArray vertexBufferData;
-    vertexBufferData->resize(vertices.size() * (3 + 3) * sizeof(float)); //xyz + rgb
+    vertexBufferData.resize(vertices.size() * (3 + 3) * sizeof(float)); //xyz + rgb
 
     float *rawVertexArray = reinterpret_cast<float *>(vertexBufferData.data());
     int i = 0;

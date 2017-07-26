@@ -9,9 +9,10 @@
 #include "main_window.h"
 #include "main_menu.h"
 #include "client_splitter.h"
+#include "thread_pool.h"
 
 DMainWindow::DMainWindow() {
-    reg(this, false);
+    reg(this, true);
 
     QRect scr = QGuiApplication::primaryScreen()->availableGeometry();
     scr.setRect(scr.width()/10,scr.height()/10,scr.width()*4/5,scr.height()*4/5);
@@ -19,6 +20,7 @@ DMainWindow::DMainWindow() {
 
     new DMainMenu(get_idx());
     new DClientSplitter(get_idx());
+    new DThreadPool(get_idx());
 
     show();
 }

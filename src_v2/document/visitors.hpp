@@ -46,7 +46,7 @@ public:
         }else{
             nlist->push_back(u);
         }
-        if(print) cout << "discovered: " << u << endl;
+        //if(print) cout << "discovered: " << u << endl;
     }
 
 private:
@@ -55,16 +55,21 @@ private:
     bool print;
 };
 
+/*
+ * Find next node compatible with type TTarget
+ */
 template<typename TTarget>
 class next_dep_visitor  : public boost::default_bfs_visitor{
 public:
     next_dep_visitor():
-            type_hash( typeid(TTarget).hash_code()),
+            //type_hash( typeid(TTarget).hash_code()),
             discovered(new std::set<void*>()){};
 
     template < typename Vertex, typename Graph >
     void discover_vertex(Vertex u, const Graph& g) {
-        if(type_hash == g[u].type_hash && discovered->find(g[u].ref_ptr) == discovered->end()) {
+        auto ptr = dynamic_pointer_cast<TTarget>(g[u].ptr);
+        //if(type_hash == g[u].type_hash && discovered->find(g[u].ref_ptr) == discovered->end()) {
+        if(ptr && discovered->find(g[u].ref_ptr) == discovered->end()) {
             discovered->insert(g[u].ref_ptr);
             throw found_node_exception(u);
         }
@@ -73,7 +78,7 @@ public:
 private:
     //share same set over all next_dep_visitor copies
     std::shared_ptr<std::set<void*>> discovered;
-    const size_t type_hash;
+    //const size_t type_hash;
 };
 
 

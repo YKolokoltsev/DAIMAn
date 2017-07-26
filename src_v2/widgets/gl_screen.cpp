@@ -52,6 +52,8 @@ void DGlScreen::unreg_scene(DSceneEntity* scene){
 }
 
 void DGlScreen::switch_scene(node_desc_t wfx_idx){
+    //todo: try to remove scene from root node, at least because of ObjectPicker
+    //however it is much more optimal than it is now
     QObject::disconnect(cameraEntity, &Qt3DRender::QCamera::viewMatrixChanged, 0, 0);
 
     if(curr_scene) curr_scene->setEnabled(false);

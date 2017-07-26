@@ -51,27 +51,40 @@ node_desc_t doc_first_nearest_child(node_desc_t v){
  * case, if one need to access a child functionality from the father, it is inconsistent
  * to get it's pointer by ref_decorator, that will produce dependency loop in a tree. This
  * function solves the problem.
+ *
+ * Another problem is that we want to apply a function to a "weak" and "shared" chils in a different
+ * manner. In the case of "shared" chils we need to mtx.lock()/mtx.release() calls to
+ * resolve thread safety in a consistent manner, and respect for "hold" objects.
+ *
+ * Function can be:
+ * std::function<void(T*)>
+ *    or
+ * std::function<void(const T*)>
  */
 template<typename T, class Function>
-void for_each_child(node_desc_t v, Function f){
-    auto dt = DocTree::inst();
+void for_each_child(node_desc_t v, Function f,  bool rw = true){
 
-    next_dep_visitor<T*> vis;
+    next_dep_visitor<T> vis;
     //these cases are to prevent possible instabilities
     //if root index changes from 'f'
-    auto root_ptr = dynamic_pointer_cast<BaseObj>(dt->g[v].ptr);
+    auto root_ptr = dynamic_pointer_cast<BaseObj>(DocTree::inst()->g[v].ptr);
 
     while(1){
+        auto dt = DocTree::inst();
         try{
-            if(root_ptr->get_idx() == dt->null_vertex) throw runtime_error("fix: root node removed");
-            breadth_first_search(make_reverse_graph<Graph>(dt->g), root_ptr->get_idx(), visitor(vis));
+            if(root_ptr->get_idx(dt) == dt->null_vertex) throw runtime_error("fix: root node removed");
+            breadth_first_search(make_reverse_graph<Graph>(dt->g), root_ptr->get_idx(dt), visitor(vis));
             return; //if bfs did not throw found_node_exception, there is no nodes left to process
         }catch(found_node_exception& ex){
-            f(static_cast<T*>(dt->g[ex.v].ptr.get()));
+            auto ptr = static_cast<T*>(dt->g[ex.v].ptr.get());
+            dt.reset();
+            exec_trait<T>(ptr, f);
         }
     }
 };
 
+//todo: BUG: throw exception if there is at least one helt object
 void remove_recursive(node_desc_t);
+size_t count_childs(node_desc_t v);
 
 #endif //DAIMAN_ALGORITHMS_H

@@ -9,7 +9,6 @@
 
 #include "wfx_item.h"
 #include "base_vertex.hpp"
-#include "wfx_item.h"
 #include "ref_decorator.hpp"
 
 #include "iitem.h"

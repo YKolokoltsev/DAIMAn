@@ -64,8 +64,17 @@ struct vertex_info{
  * a weak dependency, meaning that some other object holds a pointer onto this one.
  * If an object is deleted from outside, a weak pointer will know this automatically,
  * and we can check it's accessibility at any time. (todo: test this use case)
+ * In a case of computational threads we register a ThreadShared link to an object.
+ * In this case given object can't be changed form any of the threads and can't be deleted.
+ * "ThreadShared" dependency can't be created for "weak" objects. This is because
+ * weak objects can be accessed via plain pointers from outside world of libraries
+ * and violate a "hold-still" requirement.
+ * //todo: check all .get() calls to the objects held in tree, these are now potentially
+ * //todo: dangerous because can in principle return a plain pointer stored
+ * //todo: outside a tree. Say ".get()" is permitted and is really necesarry only for
+ * //todo: "weak" objects
  */
-enum class DependencyType{Shared, Weak};
+enum class DependencyType{Shared, Weak, HoldShared};
 
 /*
  * Here we monitor a dependency. If weak_ptr is pointing onto shared_ptr - dependency
@@ -90,3 +99,17 @@ typedef typename graph_traits<Graph>::edge_descriptor edge_desc_t;
 typedef typename graph_traits<Graph>::vertex_descriptor node_desc_t;
 
 #endif //DAIMAN_GRAPH_H_H
+
+/*
+* problem:
+* can't store vertex descriptor, it invalidates uncontrollable
+* object can be created in dynamic memory as well as in static memory? hmm interesting
+*
+* solution:
+*   a pointer object has to be bound to a vertex, their lifetimes are the same
+*   may be a unique vertex identifier can help?
+*   //https://stackoverflow.com/questions/32296206/bgl-indexing-a-vertex-by-keys
+*   //https://stackoverflow.com/questions/26697477/cut-set-of-a-graph-boost-graph-library/26699982#26699982
+*   //https://stackoverflow.com/questions/10540338/how-to-create-a-named-graph-with-boost-graph-library
+*   //bi-index map!!!! vertex->prop && prop->vertex
+*/

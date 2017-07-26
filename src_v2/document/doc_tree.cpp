@@ -5,14 +5,16 @@
 #include "doc_tree.hpp"
 
 DocTree* DocTree::instance = nullptr;
-std::mutex DocTree::mtx;
+std::recursive_mutex DocTree::mtx;
 
-DocTree* DocTree::inst() {
-    std::lock_guard<std::mutex> lock(mtx);
+std::shared_ptr<DocTree> DocTree::inst() {
+    mtx.lock();
     if(DocTree::instance == nullptr){
         DocTree::instance = new DocTree();
     }
-    return DocTree::instance;
+    return std::shared_ptr<DocTree>(DocTree::instance,[](DocTree* p){
+        DocTree::mtx.unlock();
+    });
 }
 
 void DocTree::clear(){
@@ -60,12 +62,4 @@ edge_desc_t DocTree::add_dependency(node_desc_t from, node_desc_t to){
     std::vector<node_desc_t > c;
     topological_sort(g, std::back_inserter(c));
     return eb.first;
-}
-
-size_t DocTree::node_count(){
-    return num_vertices(g);
-}
-
-size_t DocTree::edge_count(){
-    return num_edges(g);
 }

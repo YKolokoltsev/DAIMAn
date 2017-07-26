@@ -28,7 +28,7 @@ public:
     virtual void setChecked(bool checked);
 private:
     ext_weak_ptr_t<DLoadedAtomsItem> loaded_atoms_item;
-    ext_weak_ptr_t<WFNData> wfn;
+    ext_shared_ptr_t<WFNData> wfn;
     const int atom_no;
     Qt3DCore::QEntity* boundingBoxEntity;
 };

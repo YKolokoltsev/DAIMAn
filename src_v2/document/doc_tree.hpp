@@ -49,13 +49,13 @@ using namespace boost;
 class BaseObj; //todo: required only for clear function, move clear to algorithms!!!
 class DocTree{
 public:
-    static DocTree* inst();
+    static std::shared_ptr<DocTree> inst();
     ~DocTree(){clear();}
 
     void clear();
     edge_desc_t add_dependency(node_desc_t, node_desc_t); //todo: how do you add edge props here? bad!!!
-    size_t node_count();
-    size_t edge_count();
+    size_t node_count() const {return num_vertices(g);};
+    size_t edge_count() const {return num_edges(g);};
 
 public:
     const node_desc_t null_vertex;
@@ -64,7 +64,7 @@ public:
 
 private:
     static DocTree* instance;
-    static std::mutex mtx;
+    static std::recursive_mutex mtx;
     DocTree() : g(), null_vertex{g.null_vertex()} {};
 };
 

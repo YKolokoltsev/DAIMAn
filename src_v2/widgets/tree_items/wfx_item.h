@@ -25,16 +25,14 @@ Q_OBJECT
 public:
     DWfxItem(QString, node_desc_t, node_desc_t);
 
-    void reset();
     std::unique_ptr<QMenu> context_menu(QWidget*);
 
 private slots:
-    void sl_load_atoms();
     void sl_activate_scene();
 
 private:
     ext_weak_ptr_t<DTreeCtrl> tree_ctrl;
-    ext_weak_ptr_t<WFNData> wfn;
+    ext_shared_ptr_t<WFNData> wfn;
     const QString path;
 };
 

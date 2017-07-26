@@ -14,7 +14,7 @@
 #include "gl_screen.h"
 
 class DGlScreen;
-class DSceneEntity : public Qt3DCore::QEntity, public BaseObj{
+class DSceneEntity : public Qt3DCore::QEntity, public ThreadSafeBaseObject{
 Q_OBJECT
 public:
     DSceneEntity(node_desc_t, node_desc_t);
