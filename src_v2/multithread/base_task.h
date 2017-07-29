@@ -60,7 +60,7 @@ class BaseTask : public ThreadSafeBaseObject{
 public:
     BaseTask(node_desc_t idx_thread_pool);
     ~BaseTask();
-    void join(){th->join();};
+    void join(){if(th->joinable()) th->join();};
     void add_result();
     bool get_stop() const {return stop;}
     bool get_progress() const {return progress;}

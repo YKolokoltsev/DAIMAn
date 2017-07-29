@@ -10,7 +10,7 @@
 
 #include "main_menu.h"
 #include "tree_ctrl.h"
-#include "wfxparser.h"
+#include "wfx_parser.h"
 #include "scene_entity.h"
 
 DMainMenu::DMainMenu(node_desc_t main_wnd_idx) {
@@ -37,25 +37,7 @@ DMainMenu::DMainMenu(node_desc_t main_wnd_idx) {
 
 void DMainMenu::sl_open(){
     auto mw = main_window->ptr.lock();
-
-    QFileDialog dialog(mw.get());
-
-    //set dialog geometry
-    QRect scr = QGuiApplication::primaryScreen()->availableGeometry();
-    scr.setRect(scr.width()/4,scr.height()/4,scr.width()/2,scr.height()/2);
-    dialog.setGeometry(scr);
-
-    //configure dialog
-    dialog.setNameFilter(tr("AIM Wave Function Files (*.wfx)"));
-    dialog.setAcceptMode(QFileDialog::AcceptOpen);
-    dialog.setFileMode(QFileDialog::ExistingFile);
-    dialog.setViewMode(QFileDialog::Detail);
-    dialog.setDirectory(GuiConfig::inst().recent_dir());
-
-    //run dialog
-    QStringList file_list;
-    if(dialog.exec())
-        file_list = dialog.selectedFiles();
+    QStringList file_list = mw->open_file_dlg(tr("AIM Wave Function Files (*.wfx)"));
 
     //open wfx document
     if(file_list.count() != 0)
@@ -94,15 +76,20 @@ bool DMainMenu::event( QEvent *evt ){
     if(evt->type() == QEvent::User){
         auto addWfn = dynamic_cast<DMainMenuAddWfnEvent*>(evt);
         if(addWfn){
-            //todo: p_wfn object can be destroyed from another thread
+            //lock the document until the end of this function
+            //todo: this is shit, correct all!!!!!!
+            auto dt = DocTree::inst();
+
             //update recent files menu
+            auto path = QString(addWfn->p_wfn->path.c_str());
+            GuiConfig::inst().add_recent(path);
             updateRecentSubmenu();
 
             //find tree_ctrl and add wfx to tree
             auto v_main_window = doc_first_nearest_father<DMainWindow>(get_idx());
             auto v_tree_ctrl = doc_first_nearest_child<DTreeCtrl>(v_main_window);
             auto p_tree_ctrl = get_weak_obj_ptr<DTreeCtrl>(this, v_tree_ctrl);
-            p_tree_ctrl->ptr.lock()->add_wfx_item(QString(addWfn->p_wfn->path.c_str()), addWfn->p_wfn->get_idx());
+            p_tree_ctrl->ptr.lock()->add_wfx_item(path, addWfn->p_wfn->get_idx());
 
             //add new scene to wfx and show it
             v_main_window = doc_first_nearest_father<DMainWindow>(get_idx());
@@ -127,8 +114,6 @@ void DMainMenu::openWfx(QString path){
         auto v_main_window = doc_first_nearest_father<DMainWindow>(bt->get_idx());
         auto v_main_menu = doc_first_nearest_child<DMainMenu>(v_main_window);
         auto p_main_menu = get_weak_obj_ptr<DMainMenu>(bt, v_main_menu);
-
-        GuiConfig::inst().add_recent(result->get_params()->path);
 
         QApplication::postEvent(p_main_menu->ptr.lock().get(), new DMainMenuAddWfnEvent(result->p_wfn));
     };

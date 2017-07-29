@@ -20,7 +20,8 @@ void BaseTask::main(BaseTask* p_task){
     if(p_task->result == nullptr) throw runtime_error("need base_result object initialized");
     p_task->main_loop();
     p_task->stop = true;
-    p_task->thread_pool->exec_rw([&](DThreadPool* tp){tp->stop_notify();});
+    cout << "task " << p_task->get_idx() << " finished, pool notify" << endl;
+    p_task->thread_pool->exec_rw([&](DThreadPool* tp){tp->stop_notify(p_task);});
 }
 
 void BaseTask::add_result(){

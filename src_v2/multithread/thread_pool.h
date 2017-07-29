@@ -26,7 +26,7 @@ class DMainWindow;
 class DThreadPool : public ThreadSafeBaseObject{
 public:
     DThreadPool(node_desc_t idx_main_window);
-    void stop_notify();
+    void stop_notify(void* notify_uid);
     ~DThreadPool();
 
 private:
@@ -37,7 +37,7 @@ private:
     std::unique_ptr<thread> task_controller;
     bool stop{false};
     std::condition_variable cond;
-    size_t notify_count{0};
+    void* notify_uid{nullptr};
 };
 
 

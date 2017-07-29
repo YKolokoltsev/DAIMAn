@@ -17,6 +17,12 @@ public:
     std::unique_ptr<QMenu> context_menu(QWidget*);
 
 private:
+    void openMgp(QString path);
+
+private slots:
+    void sl_open_mgp();
+
+private:
     ext_weak_ptr_t<DWfxItem> wfx_item;
 };
 

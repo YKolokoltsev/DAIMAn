@@ -107,9 +107,8 @@ void DAtomItem::add3DEntity(){
         cuboidTransform->setTranslation(QVector3D(x, y, z));
 
         //bounding box(material)
-        Qt3DExtras::QPhongAlphaMaterial *alpha_material = new Qt3DExtras::QPhongAlphaMaterial;
-        alpha_material->setDiffuse(QColor(0,255,0));
-        alpha_material->setAlpha(0.4f);
+        Qt3DExtras::QPhongMaterial *alpha_material = new Qt3DExtras::QPhongMaterial;
+        alpha_material->setDiffuse(QColor(200,0,0));
 
     boundingBoxEntity->addComponent(boundingBoxMesh);
     boundingBoxEntity->addComponent(alpha_material);

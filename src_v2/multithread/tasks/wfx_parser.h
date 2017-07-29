@@ -23,7 +23,6 @@ struct WFXParserResult : TaskResult{
 
     ~WFXParserResult() {
         if(p_wfn != nullptr && res_code != RES_OK){
-            cout << "RRRRRRRRRRRRRRRRRRRRRR" << endl;
             delete p_wfn;
         }
     }
@@ -40,11 +39,7 @@ struct WFXParserResult : TaskResult{
 
     virtual void add_to_document(const BaseTask* task){
         if(res_code != RES_ERR) {
-            if(p_wfn->calc_helpers()) {
-                p_wfn->reg(p_wfn, false);
-            }else{
-                discard("failed to wfx->calc_helpers()");
-            }
+            p_wfn->reg(p_wfn, false);
         }
         TaskResult::add_to_document(task);
     };

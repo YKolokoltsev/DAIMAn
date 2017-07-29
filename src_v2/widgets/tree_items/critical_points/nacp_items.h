@@ -17,6 +17,9 @@ public:
     DFolderNACPItem(node_desc_t cp_folder_item_idx);
     std::unique_ptr<QMenu> context_menu(QWidget*);
 
+private slots:
+    void gradient_search();
+
 private:
     ext_weak_ptr_t<DCriticalPointsItem> cp_folder_item;
 };

@@ -1,4 +1,4 @@
-#include "wfxparser.h"
+#include "wfx_parser.h"
 
 
 WFXParserTask::WFXParserTask(std::shared_ptr<WFXParserParams> params, node_desc_t idx_thread_pool):
@@ -254,6 +254,9 @@ void WFXParserTask::main_loop(){
 
             update_progress((double)file->pos() / (double) file->size());
         }
+
+        if(!parser_result->p_wfn->calc_helpers()) throw runtime_error("failed to calc helpers");
+
     }catch(runtime_error& e){
         std::cerr << e.what() << std::endl;
         result->discard(e.what());

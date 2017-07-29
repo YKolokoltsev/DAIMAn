@@ -11,6 +11,8 @@ class DMainWindow : public QMainWindow, public BaseObj {
 Q_OBJECT
 public:
     DMainWindow();
+
+    QStringList open_file_dlg(const QString& name_filter);
 };
 
 #endif // MAINWINDOW_H
