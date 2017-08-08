@@ -5,6 +5,7 @@
 #include "critical_points_item.h"
 #include "nacp_items.h"
 #include "nnacp_items.h"
+#include "mgp_parser.h"
 
 DCriticalPointsItem::DCriticalPointsItem(node_desc_t wfx_item_idx){
     reg(this, true);
@@ -36,5 +37,15 @@ void DCriticalPointsItem::sl_open_mgp(){
 }
 
 void DCriticalPointsItem::openMgp(QString path){
-    cout << "todo: run parser task" << endl;
+    auto lock_inst = DocTree::inst();
+
+    std::shared_ptr<MGPParserParams> params(new MGPParserParams);
+    params->path = path.toStdString();
+    
+    //todo: add params functions
+    
+    auto v_main_window = doc_first_nearest_father<DMainWindow>(get_idx());
+    auto v_thread_pool = doc_first_nearest_child<DThreadPool>(v_main_window);
+    auto v_wfx = doc_first_nearest_father<WFNData>(get_idx());
+    new MGPParserTask(params, v_thread_pool, v_wfx);
 }

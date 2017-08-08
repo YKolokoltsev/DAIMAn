@@ -1,133 +1,151 @@
 #include <iostream>
+#include <fstream>
+#include <iterator>
 #include <string>
-#include <cctype>
+#include <list>
+#include <array>
 
 #include <boost/spirit/include/qi.hpp>
-#include <string>
-#include <sstream>
-#include <fstream>
-#include <memory>
-#include <list>
+#include <boost/spirit/include/support_multi_pass.hpp>
+#include <boost/fusion/include/std_pair.hpp>
+#include <critical_point.hpp>
 
-using namespace boost::spirit::qi;
+//#include "critical_point.hpp"
 
+using namespace boost::spirit;
 
-struct BLOCK{
-    enum TextBlock{NONE, ATOMS, CP};
+//https://theboostcpplibraries.com/boost.spirit-grammar
+//http://kiri11.ru/boost_spirit_qi_part2
 
-    BLOCK() : blk{NONE} {}
-    BLOCK(TextBlock blk) : blk{blk} {};
+typedef std::istreambuf_iterator<char> BaseIterator;
+typedef multi_pass<BaseIterator> Iterator;
 
-    bool check_block(TextBlock blk){return this->blk == blk;};
+typedef std::list<std::list<std::string>> MgpBlocks;
+struct MgpBlockGrammar : public qi::grammar<Iterator, MgpBlocks()>
+{
+    MgpBlockGrammar() : MgpBlockGrammar::base_type(start)
+    {
+        //ignore any number of blank symbols at line start
+        trim = *(qi::blank - qi::eol);
+        //read block (a list of text lines)
+        block = +(trim >> +(qi::char_ - qi::eol) >> qi::eol);
+        //parse blocks delimited by blank lines (a list of blocks)
+        start  = +block % +(trim >> qi::eol);
 
-    virtual TextBlock parse_line(const std::string& s){
-        if(phrase_parse(s.begin(), s.end(),
-                       "Nuclear Charges and Cartesian Coordinates:", space)){
-            return ATOMS;
-        }else if(phrase_parse(s.begin(), s.end(), "CP# ", space)){
-            return CP;
-        }else{
-            return NONE; //this is also to get out from any current block
-        }
+        BOOST_SPIRIT_DEBUG_NODES((start));
     }
 
-    const TextBlock blk;
-
-    bool isblank_str(const std::string& s){
-        auto cnt = std::count_if(s.begin(), s.end(), [](unsigned char c){
-            return std::isspace(c);
-        });
-        return cnt == s.length();
-    }
-
-    virtual void report(){}
+private:
+    qi::rule<Iterator, MgpBlocks()> start;
+    qi::rule<Iterator, std::list<std::string>()> block;
+    qi::rule<Iterator> trim;
 };
 
-struct ATOMS_BLOCK : public BLOCK{
-    ATOMS_BLOCK() : BLOCK(ATOMS) {};
+struct MgpAtoms {
 
-    struct AtomicData{
-        std::string atom_name;
-        float atom_charge;
+    struct MgpAtom{
+        std::string name;
+        float charge;
         double x,y,z;
-        void print(){
-            std::cout << atom_name << " " << atom_charge
-                      << " " << x << " " << y << " " << z << std::endl;
-        }
     };
 
-    virtual TextBlock parse_line(const std::string& line){
-        if(isblank_str(line)) return NONE;
-
-        AtomicData a;
-        if(phrase_parse(line.begin(), line.end(),
-                        "" >> lexeme[+alnum] >> float_
-                           >> double_ >> double_ >> double_ >> "" ,
-                        space, a.atom_name, a.atom_charge, a.x, a.y, a.z)){
-            atoms.push_back(a);
-        }
-        return ATOMS;
+    virtual bool check(const std::string& head){
+        return qi::parse(head.begin(), head.end(), "Nuclear Charges and Cartesian Coordinates:");
     }
 
-    virtual void report(){
-        std::cout << "total atoms: " << atoms.size() << std::endl;
-    }
-
-    std::list<AtomicData> atoms;
-};
-
-struct CP_BLOCK : public BLOCK{
-    CP_BLOCK() : BLOCK(CP) {};
-
-    virtual TextBlock parse_line(const std::string& line){
-        if(isblank_str(line)) return NONE;
-
-        int n = 0;
-        double x,y,z;
-        if(phrase_parse(line.begin(), line.end(),
-                        "CP#" >> int_ >> "Coords =" >> double_ >> double_ >> double_ >> "" ,
-                        space, n, x, y, z)){
-
-            std::cout << n << " >>: " << line << std::endl;
-        }
-        return CP;
-    }
-
-};
-
-int main(){
-    std::ifstream file("/home/morrigan/CLionProjects/DAIMAn/test/N4C2C2H.mgp");
-    std::string line;
-
-    using t_block_ptr = std::shared_ptr<BLOCK>;
-
-    std::list<t_block_ptr> blocks;
-    blocks.push_back(t_block_ptr(new BLOCK()));
-
-    auto atoms = t_block_ptr(new ATOMS_BLOCK());
-    blocks.push_back(atoms);
-
-    auto cps = t_block_ptr(new CP_BLOCK());
-    blocks.push_back(cps);
-
-    BLOCK::TextBlock curr_block = BLOCK::NONE;
-
-    while( std::getline(file,line)){
-        reiterate_line: //block has changed, parse same line within new block
-        for(auto& x : blocks){
-            if(x->check_block(curr_block)) {
-                auto new_block = x->parse_line(line);
-                if(curr_block != new_block){
-                    curr_block = new_block;
-                    goto reiterate_line;
-                }
+    virtual void parse(std::list<std::string>& lines){
+        MgpAtom a;
+        for(auto & l : lines) {
+            if (qi::phrase_parse(l.begin(), l.end(),
+                                 "" >> lexeme[+qi::alnum] >> float_ >>
+                                         double_ >> double_ >> double_ >> "",
+                                 qi::space, a.name, a.charge, a.x, a.y, a.z)) {
+                atoms.push_back(a);
+                std::cout << l << std::endl;
             }
         }
     }
 
-    for(auto& x : blocks){
-        x->report();
+    std::list<MgpAtom> atoms;
+};
+
+struct MgpCriticalPoints {
+
+    struct CP{
+        int n;
+        std::array<double, 3> xyz;
+        int l1, l2;
+        std::string type_name;
+        std::list<std::string> adjacent_atoms;
+
+        CriticalPoint::CP_TYPE type(){
+            if(qi::parse(type_name.begin(),type_name.end(),"NACP")){
+                return CriticalPoint::NACP;
+            }else if(qi::parse(type_name.begin(),type_name.end(),"NNACP")){
+                return CriticalPoint::NNACP;
+            }else if(qi::parse(type_name.begin(),type_name.end(),"BCP")){
+                return CriticalPoint::BCP;
+            }else if(qi::parse(type_name.begin(),type_name.end(),"RCP")){
+                return CriticalPoint::RCP;
+            }else if(qi::parse(type_name.begin(),type_name.end(),"CCP")){
+                return CriticalPoint::CCP;
+            }else{
+                return CriticalPoint::UNDEF;
+            }
+        }
+    };
+
+    struct MGPCriticalPoint : public CriticalPoint{
+        MGPCriticalPoint(const std::array<double, 3>& xyz, CP_TYPE type) : CriticalPoint(xyz, type) {};
+        virtual std::string origin(){return "MGP file";}
+    };
+
+    virtual bool check(const std::string& head){
+        return qi::parse(head.begin(), head.end(), "CP#");
     }
 
-    std::cout << "exit" << std::endl;
+    virtual void parse(std::list<std::string>& lines){
+        CP tcp;
+
+        if(!qi::phrase_parse(lines.front().begin(), lines.front().end(),
+                            "CP#" >> qi::int_ >> "Coords =" >> double_ >> double_ >> double_ >> "" ,
+                            qi::space, tcp.n, tcp.xyz[0], tcp.xyz[1], tcp.xyz[2])) return;
+        lines.pop_front();
+
+        if(!qi::phrase_parse(lines.front().begin(), lines.front().end(),
+                            "Type =" >> ("(" >> qi::int_) >> "," >> (qi::int_ >> ")") >>
+                                     qi::lexeme[+qi::char_("A-Z")] >> *qi::lexeme[(+qi::char_("A-Z0-9"))] >> "",
+                            qi::space, tcp.l1, tcp.l2, tcp.type_name, tcp.adjacent_atoms)) return;
+        lines.pop_front();
+        std::shared_ptr<MGPCriticalPoint> cp(new MGPCriticalPoint(tcp.xyz, tcp.type()));
+
+        //fill properties (including tempraries)
+
+        cps.push_back(cp);
+    }
+
+    std::list<std::shared_ptr<MGPCriticalPoint>> cps;
+};
+
+int main(){
+    std::ifstream file("/home/morrigan/CLionProjects/DAIMAn/test/N4C2C2H.mgp", std::ifstream::in);
+
+    Iterator fwd_begin = make_default_multi_pass(BaseIterator(file));
+    Iterator fwd_end  = make_default_multi_pass(BaseIterator());
+
+    MgpBlocks result;
+    qi::parse(fwd_begin, fwd_end, MgpBlockGrammar(), result);
+
+    MgpAtoms mgp_atoms;
+    MgpCriticalPoints mgp_critical_points;
+
+    for(auto& block : result){
+        if(mgp_atoms.check(block.front())){
+            mgp_atoms.parse(block);
+        }else if(mgp_critical_points.check(block.front())){
+            mgp_critical_points.parse(block);
+        }
+    }
+
+    std::cout << "found " << mgp_critical_points.cps.size() << " critical points" << std::endl;
 }

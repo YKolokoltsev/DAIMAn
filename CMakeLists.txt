@@ -11,8 +11,18 @@ find_package(Boost REQUIRED) #BGL routines
 find_package (Threads REQUIRED)
 include_directories("${Boost_INCLUDE_DIR}")
 
-add_executable(test_concept test_concept.cpp)
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src_v2/document")
+include_directories("${CMAKE_CURRENT_SOURCE_DIR}/src_v2/data")
+
+file(GLOB TEST_CONCEPT_SRC
+        "test_concept.cpp"
+        "src_v2/document/*.cpp"
+        "src_v2/document/*.hpp"
+        "src_v2/data/*.hpp")
+
+add_executable(test_concept ${TEST_CONCEPT_SRC})
 set_property(TARGET test_concept PROPERTY CXX_STANDARD 11)
+
 target_link_libraries(test_concept ${Boost_LIBRARIES})
 target_link_libraries (test_concept ${CMAKE_THREAD_LIBS_INIT})
 
