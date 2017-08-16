@@ -4,10 +4,10 @@
 WFXParserTask::WFXParserTask(std::shared_ptr<WFXParserParams> params, node_desc_t idx_thread_pool):
         BaseTask(idx_thread_pool) {
     result.reset(new WFXParserResult(params));
+    start();
 }
 
 void WFXParserTask::main_loop(){
-
     QString path = get_result()->get_params()->path;
     file = std::shared_ptr<QFile>(new QFile(path),
                                      [](QFile* p){p->close(); delete p;});
@@ -257,12 +257,12 @@ void WFXParserTask::main_loop(){
 
         if(!parser_result->p_wfn->calc_helpers()) throw runtime_error("failed to calc helpers");
 
+        result->res_code = TaskResult::RES_OK;
+
     }catch(runtime_error& e){
         std::cerr << e.what() << std::endl;
         result->discard(e.what());
     }
-
-    result->res_code = TaskResult::RES_OK;
 }
 
 

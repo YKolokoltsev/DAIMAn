@@ -1,5 +1,6 @@
 #include "top3dentity.hpp"
 #include "atom_item.h"
+#include "cp_item.h"
 
 template<typename TParent>
 void Top3DEntity<TParent>::add_to_scene(){
@@ -11,4 +12,5 @@ void Top3DEntity<TParent>::add_to_scene(){
 
 //todo: remove this add hook, the problem is that DSceneEntity is incomplete in .hpp
 template class Top3DEntity<DAtomItem>;
+template class Top3DEntity<DCpItem>;
 

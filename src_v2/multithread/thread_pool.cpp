@@ -33,8 +33,9 @@ void DThreadPool::main_loop(DThreadPool* tp){
             //task_controller can be stopped ONLY from destructor of DThreadPool
             break;
         }else{
-            //This locks DocTree && locks ThreadPool at the same time
+            //This lock DocTree && locks ThreadPool at the same time
             for_each_child<BaseTask>(tp->get_idx(),[&](BaseTask* bt){
+                //DocTree unlocked
                 if(tp->notify_uid == bt){
                     tp->notify_uid = nullptr;
                     if(bt->get_stop()) {
@@ -44,6 +45,7 @@ void DThreadPool::main_loop(DThreadPool* tp){
                     }
                     /*any other generic "notification"*/
                 }
+                //DocTree locked
             });
         }
     }

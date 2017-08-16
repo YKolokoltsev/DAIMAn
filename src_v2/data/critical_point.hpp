@@ -13,6 +13,7 @@
 #include <vector>
 #include <array>
 #include <memory>
+#include <list>
 
 #include "base_vertex.hpp"
 #include "math_property_map.hpp"
@@ -121,6 +122,12 @@ public:
         virtual string name(){return "DelSqK";}
         virtual string description(){return "Laplacian of K";}
     };
+
+    struct NeighAt : public MathProperty<std::list<int>>{
+        NeighAt(NeighAt::valtype val) : MathProperty<std::list<int>>(val){};
+        virtual string name(){return "NeighAt";}
+        virtual string description(){return "Neighbor atoms";}
+    };
 };
 
 /*
@@ -133,7 +140,7 @@ struct CriticalPoint : public ThreadSafeBaseObject, public MathBase{
 
     CriticalPoint(const std::array<double, 3>& xyz, CP_TYPE type): xyz(xyz), type{type} {};
 
-    virtual string name(){
+    static string type_name(CP_TYPE type){
         switch(type){
             case NACP: return "NACP";
             case NNACP: return "NNACP";
@@ -144,7 +151,7 @@ struct CriticalPoint : public ThreadSafeBaseObject, public MathBase{
         }
     }
 
-    virtual string description(){
+    static string type_description(CP_TYPE type){
         switch(type){
             case NACP: return "Nuclear Attractor Critical Point";
             case NNACP: return "Non-Nuclear Attractor Critical Point";
@@ -155,9 +162,14 @@ struct CriticalPoint : public ThreadSafeBaseObject, public MathBase{
         }
     }
 
+    virtual string name(){ return type_name(type); }
+    virtual string description(){ return type_description(type); }
+
     const std::array<double, 3> xyz;
     const CP_TYPE type;
     PointPropertyMap properties;
 };
+
+typedef std::list<std::pair<CriticalPoint::CP_TYPE, node_desc_t>> tTypeIdxList;
 
 #endif //DAIMAN_CRITICALPOINT_H

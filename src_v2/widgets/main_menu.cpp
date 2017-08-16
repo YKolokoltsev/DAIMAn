@@ -97,6 +97,8 @@ bool DMainMenu::event( QEvent *evt ){
             new DSceneEntity(addWfn->p_wfn->get_idx(), gl_idx);
             auto gl = get_weak_obj_ptr<DGlScreen>(this, gl_idx);
             gl->ptr.lock()->switch_scene(addWfn->p_wfn->get_idx());
+
+            return true;
         }
     }
     return QMenuBar::event(evt);

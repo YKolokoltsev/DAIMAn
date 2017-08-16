@@ -8,6 +8,9 @@
 BaseTask::BaseTask(node_desc_t idx_thread_pool) {
     reg(this, false);
     thread_pool = std::move(get_shared_obj_ptr<DThreadPool>(this, idx_thread_pool));
+}
+
+void BaseTask::start(){
     th.reset(new std::thread(main, this));
 }
 
@@ -17,6 +20,8 @@ BaseTask::~BaseTask(){
 };
 
 void BaseTask::main(BaseTask* p_task){
+    //wait until all is initialized in child constructor
+
     if(p_task->result == nullptr) throw runtime_error("need base_result object initialized");
     p_task->main_loop();
     p_task->stop = true;

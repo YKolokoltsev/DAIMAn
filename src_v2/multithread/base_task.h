@@ -34,7 +34,6 @@ struct TaskResult{
     enum ResultCode{RES_OK, RES_ERR, RES_INCOMPLETE};
 
     virtual void add_to_document(const BaseTask* task){
-
         if(res_code == RES_OK && params->post_res_ok){
             params->post_res_ok(task);
         }else if(res_code == RES_ERR && params->post_res_err){
@@ -68,6 +67,7 @@ public:
 protected:
     virtual void main_loop() = 0;
     void update_progress(double perc); //update reasonably often in "main_loop"
+    void start(); //start thread AT THE END of child constructor
 
 private:
     static void main(BaseTask* p_task);
