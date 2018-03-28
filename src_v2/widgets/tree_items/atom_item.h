@@ -24,8 +24,12 @@ public:
     bool check_entity_exist();
 
     virtual void setData(int column, int role, const QVariant &value);
-    virtual std::unique_ptr<QMenu> context_menu(QWidget* menu_parent){};
+    virtual std::unique_ptr<QMenu> context_menu(QWidget* menu_parent){
+        return std::unique_ptr<QMenu>(nullptr);
+    };
     virtual void setChecked(bool checked);
+    bool isChecked();
+    int getAtomNo(){return atom_no;}
 private:
     ext_weak_ptr_t<DLoadedAtomsItem> loaded_atoms_item;
     ext_shared_ptr_t<WFNData> wfn;

@@ -42,6 +42,10 @@ void DAtomItem::setChecked(bool checked){
     setData(1, Qt::CheckStateRole, value);
 }
 
+bool DAtomItem::isChecked(){
+    return checkState(1) == Qt::CheckState::Checked;
+}
+
 bool DAtomItem::check_entity_exist(){
     //todo: valid only if there is just one entity, but there can be many
     auto v_entity = doc_first_nearest_child<Top3DEntity<DAtomItem>>(get_idx());

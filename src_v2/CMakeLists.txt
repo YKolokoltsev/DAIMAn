@@ -5,7 +5,8 @@ find_package (Threads)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 
-set(CMAKE_FIND_ROOT_PATH "/home/morrigan/Opt/OpenQt5.9/5.9.1/gcc_64/")
+#set(CMAKE_FIND_ROOT_PATH "/home/morrigan/Opt/OpenQt5.9/5.9.1/gcc_64/")
+set(CMAKE_FIND_ROOT_PATH "/home/morrigan/Opt/Qt5/5.11.0/gcc_64")
 find_package(Qt5 REQUIRED COMPONENTS
         Core Gui Widgets Xml OpenGL 3DCore 3DInput 3DRender 3DExtras)
 

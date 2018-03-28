@@ -120,12 +120,13 @@
 #include <typeindex>
 #include <map>
 
+//todo: remove namespace in header
 using namespace std;
 
 struct MathBase{
-    virtual string origin() = 0;
-    virtual string name(){return "NA";}
-    virtual string description(){return "NA";}
+    virtual std::string origin() = 0;
+    virtual std::string name(){return "NA";}
+    virtual std::string description(){return "NA";}
 };
 
 /*

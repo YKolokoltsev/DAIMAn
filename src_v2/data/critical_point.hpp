@@ -122,7 +122,13 @@ public:
         virtual string name(){return "DelSqK";}
         virtual string description(){return "Laplacian of K";}
     };
+};
 
+/*
+ * Any properties that are specific to critical points shell be placed here.
+ */
+class CriticalPointPropertyMap : public PointPropertyMap{
+public:
     struct NeighAt : public MathProperty<std::list<int>>{
         NeighAt(NeighAt::valtype val) : MathProperty<std::list<int>>(val){};
         virtual string name(){return "NeighAt";}
@@ -138,7 +144,8 @@ struct CriticalPoint : public ThreadSafeBaseObject, public MathBase{
 
     enum CP_TYPE{NACP, NNACP, BCP, RCP, CCP, UNDEF};
 
-    CriticalPoint(const std::array<double, 3>& xyz, CP_TYPE type): xyz(xyz), type{type} {};
+    CriticalPoint(const std::array<double, 3>& xyz, CP_TYPE type):
+            xyz(xyz), type{type} {};
 
     static string type_name(CP_TYPE type){
         switch(type){
@@ -167,7 +174,7 @@ struct CriticalPoint : public ThreadSafeBaseObject, public MathBase{
 
     const std::array<double, 3> xyz;
     const CP_TYPE type;
-    PointPropertyMap properties;
+    CriticalPointPropertyMap properties;
 };
 
 typedef std::list<std::pair<CriticalPoint::CP_TYPE, node_desc_t>> tTypeIdxList;

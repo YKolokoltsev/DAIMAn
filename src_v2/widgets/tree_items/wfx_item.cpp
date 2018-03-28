@@ -3,7 +3,7 @@
 //
 
 #include "wfx_item.h"
-#include "loaded_atoms_item.h"
+#include "atomic_groups_item.h"
 #include "gl_screen.h"
 #include "widgets/tree_items/critical_points/critical_points_item.h"
 

@@ -5,6 +5,8 @@
 #ifndef DAIMAN_LOADED_ATOMS_ITEM_H
 #define DAIMAN_LOADED_ATOMS_ITEM_H
 
+#include <list>
+
 #include <QTreeWidgetItem>
 
 #include "wfx_item.h"
@@ -23,6 +25,8 @@ public:
     DLoadedAtomsItem(node_desc_t, node_desc_t);
 
     std::unique_ptr<QMenu> context_menu(QWidget*);
+    std::list<int> list_selected_atoms();
+
 
 public slots:
     void sl_show_all_atoms();

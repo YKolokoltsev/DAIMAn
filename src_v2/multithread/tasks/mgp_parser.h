@@ -22,7 +22,7 @@ using namespace boost::spirit;
 /*
  * In AIMAll mgp-file the data is divided into blocks separated by blank lines.
  * This grammar is defined to split the text file into blocks, and each block -
- * into the lines. This simplifies significantly subsequent parsing.
+ * into the lines. This simplifies subsequent parsing.
  */
 
 //https://theboostcpplibraries.com/boost.spirit-grammar
@@ -282,8 +282,8 @@ struct MgpCriticalPoints {
         t_path path;
     };
 
-    struct NeighAt : public PointPropertyMap::NeighAt{
-        NeighAt(valtype val, t_path path) : PointPropertyMap::NeighAt(val), path{path} {}
+    struct NeighAt : public CriticalPointPropertyMap::NeighAt{
+        NeighAt(valtype val, t_path path) : CriticalPointPropertyMap::NeighAt(val), path{path} {}
         virtual std::string origin() {return *path;}
     private:
         t_path path;
